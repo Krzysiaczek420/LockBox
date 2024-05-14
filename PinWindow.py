@@ -1,69 +1,48 @@
 import customtkinter as ctk
-import CTkToolTip
+import tkinter as tk
 import random
-
-#=========================================================================
-#   dodatkowe okno do pinu
-#=========================================================================
+import string
 
 def generate_random_pin():
-        # Generowanie trzech 3-cyfrowych liczb
-    part1 = str(random.randint(100, 999))
-    part2 = str(random.randint(100, 999))
-    part3 = str(random.randint(100, 999))
-        # Łączenie ich z myślnikami
-    return f"{part1}-{part2}-{part3}"
+    return ''.join(random.choices(string.digits, k=6))
+
 def pin_window(register_window, login_window):
-
-    def copy():
-        pin_text = pin_textbox.get()  # Pobranie tekstu z pola tekstowego
-        pin_window.clipboard_clear()  # Wyczyść zawartość schowka
-        pin_window.clipboard_append(pin_text)
-        print(pin_text)
-
-
-    def on_ok(register_window):
-        if register_window and register_window.winfo_exists():
-            register_window.destroy()
-
-        if login_window and login_window.winfo_exists():
-            login_window.deiconify()
-
-        pin_window.destroy()
-
-
-    pin_value = generate_random_pin()  # Zmieniłem nazwę zmiennej na "pin_value"
     pin_window = ctk.CTk()
-    pin_window.geometry("300x150")
+    pin_window.geometry("700x500")
     pin_window.title("LockBox-Pin")
     pin_window.resizable(False, False)
-    pin_label = ctk.CTkLabel(pin_window, 
-        text = "PIN code, necessary for password recovery",
-        width=150, 
-        height=30)
-    pin_textbox = ctk.CTkEntry(pin_window, 
-        width=100, 
-        height=30)
-    copy_button = ctk.CTkButton(pin_window, 
-        text="Copy",
-        width = 50, 
-        height=30, 
-        command=copy)
-    
-    ok_button = ctk.CTkButton(pin_window, 
-        text="Ok",
-        width = 50, 
-        height=30, 
-        command=on_ok)
 
+    pin_value = generate_random_pin()
 
-    pin_label.place(x=25, y=20)
-    pin_textbox.place(x=80, y=60)
-    copy_button.place(x=190, y=60)
-    ok_button.place(x=125, y=100)
-    pin_textbox.insert(0, pin_value)  # Zmieniłem nazwę zmiennej na "pin_value"
-    pin_textbox.configure(state="readonly")
+    def on_closing():
+        if pin_window:
+            try:
+                if hasattr(pin_window, "_after_id"):
+                    pin_window.after_cancel(pin_window._after_id)
+                if register_window and register_window.winfo_exists():
+                    register_window.destroy()
+                if login_window and login_window.winfo_exists():
+                    login_window.deiconify()
+                pin_window.destroy()
+            except tk.TclError:
+                pass
+
+    def ok_button_press():
+        #on_closing()
+        pin_window.after(200, on_closing)
+
+    pin_window.protocol("WM_DELETE_WINDOW", on_closing)
+
+    pin_label = ctk.CTkLabel(pin_window, text="Your PIN is:", width=200, height=50)
+    pin_label.place(x=250, y=180)
+
+    pin_entry = ctk.CTkEntry(pin_window, width=150, height=30)
+    pin_entry.insert(0, pin_value)
+    pin_entry.configure(state="readonly")
+    pin_entry.place(x=265, y=230)
+
+    ok_button = ctk.CTkButton(pin_window, text="OK", width=60, height=30, command=ok_button_press)
+    ok_button.place(x=320, y=300)
+
     pin_window.mainloop()
 
-
-#pin_window()
