@@ -112,4 +112,3 @@ newUserButton.place(x=180, y=460)
 # Run
 #=========================================================================
 run_LoginPage()
-#potrzebuje rownież aby zamkniecie ktoregokolwiek okna w ForgetPasswordWindow i wcisniecie guzika submit w change_password w ForgetPasswordWindow spowrotem otwierało okno loginPage
