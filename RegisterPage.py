@@ -118,7 +118,7 @@ def open_register_window(login_window):
                     pin_code=pin_value
                 )
                 if result["success"]:
-                    pin.pin_window(register_window, login_window)
+                    pin.pin_window(register_window, login_window,pin_value)
                 else:
                     error_label.configure(text=result["message"])
 
@@ -143,6 +143,8 @@ def open_register_window(login_window):
         "What is your mother's maiden name?",
         "What is the name of your",
         "Where were you born?",
+        "What is the name of your first pet?",
+        "What was your first car?",
         "Other..."]
 
     security_question_combobox = ctk.CTkComboBox(register_window, state="readonly", width=150, height=30, values=security_question_values, command=on_other_selected)
