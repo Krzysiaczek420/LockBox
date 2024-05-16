@@ -4,6 +4,7 @@ import RegisterPage
 import Baza as baza
 import PinWindow as pin
 import ForgetPasswordWindow as forgetPW
+from Motyw import ustaw_motyw_i_kolor
 
 #=========================================================================
 #           główne okno strony logowania
@@ -12,6 +13,12 @@ login_window = ctk.CTk()
 login_window.geometry("700x500")
 login_window.title("LockBox")
 login_window.resizable(False,False)
+sciezka_do_pliku = 'settings.json'
+
+# Ustawienie motywu i koloru
+motyw, kolor = ustaw_motyw_i_kolor(sciezka_do_pliku)
+ctk.set_appearance_mode(motyw)
+ctk.set_default_color_theme(kolor)
 
 #=========================================================================
 # Funkcje
@@ -111,4 +118,4 @@ newUserButton.place(x=180, y=460)
 #=========================================================================
 # Run
 #=========================================================================
-run_LoginPage()
+#run_LoginPage()
