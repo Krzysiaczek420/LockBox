@@ -4,15 +4,15 @@ import random
 import string
 
 def generate_random_pin():
-    return ''.join(random.choices(string.digits, k=6))
+    return ''.join(random.choices(string.digits, k=9))
 
-def pin_window(register_window, login_window):
+def pin_window(register_window, login_window,pin_value):
     pin_window = ctk.CTk()
     pin_window.geometry("700x500")
     pin_window.title("LockBox-Pin")
     pin_window.resizable(False, False)
 
-    pin_value = generate_random_pin()
+    #pin_value = generate_random_pin()
 
     def on_closing():
         if pin_window:
