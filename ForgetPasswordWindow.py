@@ -123,7 +123,7 @@ def collect_data(login_window, run_LoginPage,username):
     pin_number.bind("<KeyRelease>", lambda event: check_data())
     collect_data.mainloop()
 
-def change_password(login_window, run_LoginPage,username):
+def change_password(login_window, run_LoginPage, username):
     def switch_windows():
         change_password.destroy()
         login_window.deiconify()
@@ -134,7 +134,6 @@ def change_password(login_window, run_LoginPage,username):
             error_label.configure(text="")
             return True
         else:
-            #clear_textboxes()
             error_label.configure(text="Password must contain at least 12 characters including at least one uppercase letter, one lowercase letter, one digit, and one special character")
             return False
 
@@ -143,14 +142,11 @@ def change_password(login_window, run_LoginPage,username):
         if check_password_validity(new_password):
             result = Baza.change_user_password(username, new_password)
             if result["success"]:
-                #na razie niech bedzie z tym labelem
-                #trzeba zrobic dodatkowe okienko z potwierdzeniem zmiany hasla
-                #i guzikiem "ok" ktoreego nacisniecie zamknie okno
-                #a to okno bedzie trzeba zdezaktywowac w sensie zablokowac wszystko
-                error_label.configure(text="Hasło zostało pomyślnie zmienione.", text_color="green")
+                show_confirmation_window()
+                password.configure(state="disabled")
+                confirm_password.configure(state="disabled")
             else:
                 error_label.configure(text=result["message"], text_color="red")
-            change_password.after(100, switch_windows)
         else:
             error_label.configure(text="New password is not valid.", text_color="red")
 
@@ -160,16 +156,32 @@ def change_password(login_window, run_LoginPage,username):
             confirm_password.configure(show="")
         else:
             password.configure(show="*")
-            confirm_password.configure(show="*")  # Oczekaj 100ms przed przejściem do następnego okna
-    def check_same_password(event=None):
-        if(password.get()!= confirm_password.get()):
-            pass
-    
+            confirm_password.configure(show="*")
+
     def check_password():
-        if (password.get() == "" or confirm_password.get() == ""):
-            submit_button.configure(state="disabled")  # Wyłącz przycisk, jeśli pole jest puste
+        if password.get() == "" or confirm_password.get() == "":
+            submit_button.configure(state="disabled")
         else:
-            submit_button.configure(state="normal")  # Włącz przycisk, jeśli pole nie jest puste
+            submit_button.configure(state="normal")
+
+    def show_confirmation_window():
+        confirmation_window = ctk.CTkToplevel(change_password)
+        confirmation_window.geometry("300x100")
+        confirmation_window.title("Confirmation")
+
+        confirmation_label = ctk.CTkLabel(confirmation_window, text="Hasło zostało zmienione", width=250, height=30)
+        confirmation_button = ctk.CTkButton(confirmation_window, text="OK", command=lambda: confirmation_window.after(100, on_ok_click, confirmation_window))
+
+        confirmation_label.pack(pady=10)
+        confirmation_button.pack(pady=10)
+
+        change_password.attributes("-disabled", True)
+        confirmation_window.protocol("WM_DELETE_WINDOW", lambda: on_ok_click(confirmation_window))
+
+    def on_ok_click(confirmation_window):
+        confirmation_window.destroy()
+        change_password.destroy()
+        login_window.deiconify()
 
     change_password = ctk.CTk()
     change_password.geometry("450x200")
@@ -177,11 +189,11 @@ def change_password(login_window, run_LoginPage,username):
     change_password.resizable(False, False)
     change_password.protocol("WM_DELETE_WINDOW", lambda: on_closing(change_password, login_window))
 
-    password = ctk.CTkEntry(change_password, width=150, height=30,show="*", placeholder_text="New Password")
-    confirm_password = ctk.CTkEntry(change_password, width=150, height=30,show="*", placeholder_text="Confirm Password")
-    submit_button = ctk.CTkButton(change_password,state="disabled", width=50, height=30, text="Submit", command=on_click)
-    show_password = ctk.CTkCheckBox(change_password, width=50, height=30, text="Show Password",command = show_password)
-    error_label = ctk.CTkLabel(change_password, width=450, height=30, text="",compound="center", fg_color="transparent", text_color="red")
+    password = ctk.CTkEntry(change_password, width=150, height=30, show="*", placeholder_text="New Password")
+    confirm_password = ctk.CTkEntry(change_password, width=150, height=30, show="*", placeholder_text="Confirm Password")
+    submit_button = ctk.CTkButton(change_password, state="disabled", width=50, height=30, text="Submit", command=on_click)
+    show_password = ctk.CTkCheckBox(change_password, width=50, height=30, text="Show Password", command=show_password)
+    error_label = ctk.CTkLabel(change_password, width=450, height=30, text="", compound="center", fg_color="transparent", text_color="red")
 
     password.place(x=65, y=40)
     confirm_password.place(x=235, y=40)
@@ -189,9 +201,9 @@ def change_password(login_window, run_LoginPage,username):
     submit_button.place(x=285, y=90)
     error_label.place(x=0, y=160)
 
-
     password.bind("<KeyRelease>", lambda event: check_password())
     confirm_password.bind("<KeyRelease>", lambda event: check_password())
+
     change_password.mainloop()
 
 def on_closing(window, login_window):
