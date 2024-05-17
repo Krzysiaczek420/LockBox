@@ -36,7 +36,7 @@ def add_user(username, password, security_question, answer, pin_code):
     salt = get_random_bytes(16)
     
     # Szyfrowanie klucza za pomocą hasła użytkownika i pinu
-    key_encryption_key = Szyfrowanie.generate_key_from_password_and_pin(password, pin_code, salt)
+    key_encryption_key = Szyfrowanie.generate_key(answer, pin_code, salt)
     encrypted_key = Szyfrowanie.encrypt_service_password(base64.b64encode(key).decode('utf-8'), key_encryption_key)
 
     user_data = {
