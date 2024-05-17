@@ -54,7 +54,7 @@ def open_register_window(login_window):
             return True
         else:
             clear_textboxes()
-            error_label.configure(text="Password must contain at least 12 characters including at least one uppercase letter, one lowercase letter, one digit, and one special character")
+            error_label.configure(text="Password must contain at least 12 characters including at least one uppercase letter,\n one lowercase letter, one digit, and one special character", justify="center", compound="center")
             return False
 
     def cancel_focus(event=None):
@@ -153,7 +153,7 @@ def open_register_window(login_window):
 
     answer_input = ctk.CTkEntry(register_window, width=150, height=30, placeholder_text="Security Question Answer")
     register_button = ctk.CTkButton(register_window, state="disabled", text="Register", command=register_action)
-    error_label = ctk.CTkLabel(register_window, text="", width=200, height=25, fg_color="transparent", text_color="red")
+    error_label = ctk.CTkLabel(register_window, text="",compound="center", width=700, height=50, fg_color="transparent", text_color="red")
 
     username_input.bind("<KeyRelease>", check_if_empty)
     password_input.bind("<KeyRelease>", check_if_empty)
@@ -169,6 +169,6 @@ def open_register_window(login_window):
     answer_input.place(x=365, y=300)
     show_password_register.place(x=275, y=350)
     register_button.place(x=275, y=400)
-    error_label.place(x=275, y=450)
+    error_label.place(x=0, y=430)
 
     register_window.mainloop()
