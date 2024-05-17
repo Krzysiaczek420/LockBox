@@ -8,7 +8,7 @@ def generate_random_pin():
 
 def pin_window(register_window, login_window,pin_value):
     pin_window = ctk.CTk()
-    pin_window.geometry("700x500")
+    pin_window.geometry("450x200")
     pin_window.title("LockBox-Pin")
     pin_window.resizable(False, False)
 
@@ -30,19 +30,29 @@ def pin_window(register_window, login_window,pin_value):
     def ok_button_press():
         #on_closing()
         pin_window.after(200, on_closing)
+    def copy_button_press():
+        pin_entry.clipboard_clear()
+        pin_entry.clipboard_append(pin_value)
+        info_label.configure(text="PIN copied to clipboard")
 
     pin_window.protocol("WM_DELETE_WINDOW", on_closing)
 
-    pin_label = ctk.CTkLabel(pin_window, text="Your PIN is:", width=200, height=50)
-    pin_label.place(x=250, y=180)
+    pin_label = ctk.CTkLabel(pin_window, text="Your PIN is:\n PIN code is nessesery in password recovery", width=450, height=60,compound="center")
+    #pin_label.place(x=250, y=180)
 
     pin_entry = ctk.CTkEntry(pin_window, width=150, height=30)
     pin_entry.insert(0, pin_value)
     pin_entry.configure(state="readonly")
-    pin_entry.place(x=265, y=230)
-
+    #pin_entry.place(x=265, y=230)
+    copy_button = ctk.CTkButton(pin_window, text="Copy", width=60, height=30, command=copy_button_press)
     ok_button = ctk.CTkButton(pin_window, text="OK", width=60, height=30, command=ok_button_press)
-    ok_button.place(x=320, y=300)
+    info_label = ctk.CTkLabel(pin_window, text="", width=450, height=30,compound="center")
+
+    pin_label.place(x=0, y=20)
+    pin_entry.place(x=150, y=70)
+    copy_button.place(x=320, y=70)
+    ok_button.place(x=195, y=120)
+    info_label.place(x=0, y=150)
 
     pin_window.mainloop()
 
