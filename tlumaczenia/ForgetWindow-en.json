@@ -1,5 +1,6 @@
 {
     "User_not_found": "Username not found. Please try again.",
+    "Passwords_do_not_match": "Passwords do not match",
     "Username": "Username",
     "Submit": "Submit",
     "Invalid_data": "Invalid PIN or Answer. Please try again.",
