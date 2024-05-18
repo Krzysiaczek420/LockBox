@@ -5,13 +5,23 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import PinWindow as pin
 import Baza
+################################################################
+# okno rejestracji
+################################################################
 
+################################################################
+#definiowanie okna rejestracji
+################################################################
 def open_register_window(login_window):
     register_window = ctk.CTk()
     register_window.geometry("700x500")
     register_window.title("LockBox-Registration")
     register_window.resizable(False, False)
 
+################################################################
+# funkcja sprawdzajaca czy pole password i confirm password sa takie same
+# jesli nie komunikat i czyszczenie textboxow
+################################################################
     def check_passwords():
         global same_passwords
         same_passwords = False
@@ -24,6 +34,10 @@ def open_register_window(login_window):
             register_window.focus_set()
             error_label.configure(text="Passwords are not the same")
 
+################################################################
+# funkcja sprawdzjaca czy textboxy nie sa puste
+# jesli nie aktywowanie przycisku rejestracji
+################################################################
     def check_if_empty(event=None):
         if (username_input.get() == "" or password_input.get() == "" or
             confirm_password_input.get() == "" or answer_input.get() == "" or
@@ -32,6 +46,9 @@ def open_register_window(login_window):
         else:
             register_button.configure(state="normal")
 
+################################################################
+# funkcja sprawdzajaca czy login ma poprawna dlugosc (5 znakow)
+################################################################
     def check_username_length():
         username = username_input.get()
         if ' ' in username:
@@ -46,6 +63,10 @@ def open_register_window(login_window):
             error_label.configure(text="Username must be at least 5 characters long")
             return False
 
+################################################################
+# funckaj sprawdzajca czy haslo spelnia odpowiednie wymagania
+# jelsi nie komunikat i czyszczenie textboxow
+################################################################
     def check_password_validity():
         password = password_input.get()
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$"
@@ -57,6 +78,9 @@ def open_register_window(login_window):
             error_label.configure(text="Password must contain at least 12 characters including at least one uppercase letter,\n one lowercase letter, one digit, and one special character", justify="center", compound="center")
             return False
 
+################################################################
+# funkcja przenoszaca focus na glowne okno
+################################################################
     def cancel_focus(event=None):
         if event:
             widget = register_window.winfo_containing(event.x_root, event.y_root)
@@ -69,6 +93,9 @@ def open_register_window(login_window):
             if security_question_combobox.get() == "":
                 security_question_combobox.set("Select Question")
 
+################################################################
+# obsluga checkboxu do wyswietlania hasla
+################################################################
     def show_password_button():
         if password_input.cget("show") == "*" or confirm_password_input.cget("show") == "*":
             password_input.configure(show="")
@@ -77,6 +104,11 @@ def open_register_window(login_window):
             password_input.configure(show="*")
             confirm_password_input.configure(show="*")
 
+################################################################
+# funkcja odpowiedzialna za combobox
+# jesli zostanie wybrana opcja "Other..." to pozwala na wpisanie
+# w innym wypadku wpisywanie jest zablokowane
+################################################################
     def on_other_selected(choice):
         if security_question_combobox.get() == "Other...":
             security_question_combobox.configure(state="normal")
@@ -85,12 +117,15 @@ def open_register_window(login_window):
             security_question_combobox.configure(state="readonly")
         check_if_empty()
 
-    def check_combobox_empty():
-        if security_question_combobox.get() == "Other...":
-            register_button.configure(state="disabled")
-        else:
-            check_if_empty()
+    # def check_combobox_empty():
+    #     if security_question_combobox.get() == "Other...":
+    #         register_button.configure(state="disabled")
+    #     else:
+    #         check_if_empty()
 
+################################################################
+# funkcja do czyszczenia textboxow
+################################################################
     def clear_textboxes():
         username_input.delete(0, tk.END)
         username_input.configure(placeholder_text="Username")
@@ -105,6 +140,9 @@ def open_register_window(login_window):
         register_button.configure(state="disabled")
         cancel_focus()
 
+################################################################
+# funkcja odpowiedzialna za przycisk rejestracji
+################################################################
     def register_action():
         if check_username_length() and check_password_validity():
             check_passwords()
@@ -122,6 +160,9 @@ def open_register_window(login_window):
                 else:
                     error_label.configure(text=result["message"])
 
+################################################################
+# dzialania po zamknieciu okna rejestracji
+################################################################
     def on_closing():
         if register_window:
             try:
@@ -131,14 +172,39 @@ def open_register_window(login_window):
             except tk.TclError:
                 pass
 
+
     register_window.protocol("WM_DELETE_WINDOW", on_closing)
     register_window.bind("<Button-1>", cancel_focus)
 
-    username_input = ctk.CTkEntry(register_window, width=150, height=30, placeholder_text="Username")
-    show_password_register = ctk.CTkCheckBox(register_window, text="show password", width=150, height=30, command=show_password_button)
-    password_input = ctk.CTkEntry(register_window, width=150, height=30, placeholder_text="Password", show="*")
-    confirm_password_input = ctk.CTkEntry(register_window, width=150, height=30, placeholder_text="Confirm Password", show="*")
+################################################################
+# widgety
+################################################################
+    username_input = ctk.CTkEntry(register_window, 
+        width=150, 
+        height=30, 
+        placeholder_text="Username")
+    
+    show_password_register = ctk.CTkCheckBox(register_window, 
+        text="Show password", 
+        width=150, 
+        height=30, 
+        command=show_password_button)
+    
+    password_input = ctk.CTkEntry(register_window, 
+        width=150, 
+        height=30, 
+        placeholder_text="Password", 
+        show="*")
+    
+    confirm_password_input = ctk.CTkEntry(register_window, 
+        width=150, 
+        height=30, 
+        placeholder_text="Confirm Password", 
+        show="*")
 
+################################################################
+# wartosci comboboxa (pytania bezpieczenstwa)
+################################################################
     security_question_values = [
         "What is your mother's maiden name?",
         "What is the name of your",
@@ -147,20 +213,43 @@ def open_register_window(login_window):
         "What was your first car?",
         "Other..."]
 
-    security_question_combobox = ctk.CTkComboBox(register_window, state="readonly", width=150, height=30, values=security_question_values, command=on_other_selected)
+    security_question_combobox = ctk.CTkComboBox(register_window, 
+        state="readonly", 
+        width=150, 
+        height=30, 
+        values=security_question_values, 
+        command=on_other_selected)
+    
     security_question_combobox.set("Select Question")
     security_question_combobox.bind("<<ComboboxSelected>>", on_other_selected)
 
-    answer_input = ctk.CTkEntry(register_window, width=150, height=30, placeholder_text="Security Question Answer")
-    register_button = ctk.CTkButton(register_window, state="disabled", text="Register", command=register_action)
-    error_label = ctk.CTkLabel(register_window, text="",compound="center", width=700, height=50, fg_color="transparent", text_color="red")
+    answer_input = ctk.CTkEntry(register_window, 
+        width=150, 
+        height=30, 
+        placeholder_text="Security Question Answer")
+    
+    register_button = ctk.CTkButton(register_window, 
+        state="disabled", 
+        text="Register", 
+        command=register_action)
+    
+    error_label = ctk.CTkLabel(register_window, 
+        text="",
+        compound="center", 
+        width=700, 
+        height=50, 
+        fg_color="transparent", 
+        text_color="red")
 
     username_input.bind("<KeyRelease>", check_if_empty)
     password_input.bind("<KeyRelease>", check_if_empty)
     confirm_password_input.bind("<KeyRelease>", check_if_empty)
     answer_input.bind("<KeyRelease>", check_if_empty)
 
-    register_label = ctk.CTkLabel(register_window, text="Registration", width=140, height=20)
+    register_label = ctk.CTkLabel(register_window, 
+        text="Registration", 
+        width=140, 
+        height=20)
 
     username_input.place(x=275, y=150)
     password_input.place(x=275, y=200)
