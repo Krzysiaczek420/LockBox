@@ -1,10 +1,19 @@
 import json
+################################################################
+# funkcja do zmieny koloru i motywu
+################################################################
 
+################################################################
+# funkcja odczytujaca kolor i motyw z plkiku settings.json
+################################################################
 def wczytaj_ustawienia(sciezka):
     with open(sciezka, 'r') as plik:
         ustawienia = json.load(plik)
     return ustawienia
 
+################################################################
+# funkcja ustawiajaca motyw i kolor
+################################################################
 def ustaw_motyw_i_kolor(sciezka_do_pliku):
     # Słownik mapujący nazwy kolorów na ich ścieżki do plików JSON lub nazwy domyślne
     kolory = {
