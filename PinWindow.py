@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 import random
 import string
+from Settings import wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
 ################################################################
 # Okno pinu po rejestracji
 ################################################################
@@ -20,6 +21,14 @@ def pin_window(register_window, login_window,pin_value):
     pin_window.geometry("450x200")
     pin_window.title("LockBox-Pin")
     pin_window.resizable(False, False)
+    sciezka_do_pliku = 'settings.json'
+
+################################################################
+# wczytanie ustawień i tłumaczeń
+################################################################
+    ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
+    jezyk = ustawienia.get('language', 'en')
+    tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'PinWindow')
 
 ################################################################
 # dzialania po zamknieciu okna
@@ -52,12 +61,12 @@ def pin_window(register_window, login_window,pin_value):
     def copy_button_press():
         pin_entry.clipboard_clear()
         pin_entry.clipboard_append(pin_value)
-        info_label.configure(text="PIN copied to clipboard")
+        info_label.configure(text=tlumaczenie["Copied"])
 
     pin_window.protocol("WM_DELETE_WINDOW", on_closing)
 
     pin_label = ctk.CTkLabel(pin_window, 
-        text="Your PIN is:\n PIN code is nessesery in password recovery", 
+        text=tlumaczenie["Pin_info"], 
         width=450, 
         height=60,
         compound="center")
@@ -72,7 +81,7 @@ def pin_window(register_window, login_window,pin_value):
     pin_entry.configure(state="readonly")
 
     copy_button = ctk.CTkButton(pin_window, 
-        text="Copy", 
+        text=tlumaczenie["Copy_PIN"], 
         width=60, 
         height=30, 
         command=copy_button_press)
