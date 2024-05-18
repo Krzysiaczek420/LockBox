@@ -2,10 +2,14 @@ import re
 import tkinter as tk
 import customtkinter as ctk 
 import Baza
+from Settings import wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
 ################################################################
 # funkcja do odzyskiwania hasla 
 ################################################################
-
+sciezka_do_pliku = 'settings.json'
+ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
+jezyk = ustawienia.get('language', 'en')
+tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'ForgetWindow')
 ################################################################
 # pierwsze okienko, wpisywanie nazwy uzytkownika
 ################################################################
@@ -37,7 +41,7 @@ def select_username(login_window, run_LoginPage):
             select_username.after(100, lambda: switch_windows(user))
         else:
             clear_textboxes()
-            error_label.configure(text="Username not found. Please try again.",text_color="red")
+            error_label.configure(text=tlumaczenie["User_not_found"],text_color="red")
             select_username.focus_set() 
 
 #################################################################
@@ -64,7 +68,7 @@ def select_username(login_window, run_LoginPage):
  ###################################################################   
     def clear_textboxes():
         username.delete(0, tk.END)
-        username.configure(placeholder_text="Username")
+        username.configure(placeholder_text=tlumaczenie["Username"])
     
 ###################################################################
 # definiowanie okna glownego
@@ -79,13 +83,13 @@ def select_username(login_window, run_LoginPage):
     username = ctk.CTkEntry(select_username, 
         width=150, 
         height=30, 
-        placeholder_text="Username")
+        placeholder_text=tlumaczenie["Username"])
     
     submit_button = ctk.CTkButton(select_username,
         state="disabled", 
         width=50, 
         height=30, 
-        text="Submit", 
+        text=tlumaczenie["Submit"], 
         command=on_click)
     
     error_label = ctk.CTkLabel(select_username, 
@@ -139,7 +143,7 @@ def collect_data(login_window, run_LoginPage,username):
             collect_data.after(100, switch_windows)
         else:
             clear_textboxes()
-            error_label.configure(text="Invalid PIN or Answer. Please try again.",justify="center")
+            error_label.configure(text=tlumaczenie["Invalid_data"],justify="center")
             collect_data.focus_set()
 
 ###################################################################
@@ -157,9 +161,9 @@ def collect_data(login_window, run_LoginPage,username):
 ###################################################################
     def clear_textboxes():
         answer.delete(0, tk.END)
-        answer.configure(placeholder_text="Answer")
+        answer.configure(placeholder_text=tlumaczenie["Answer"])
         pin_number.delete(0, tk.END)
-        pin_number.configure(placeholder_text="PIN")
+        pin_number.configure(placeholder_text=tlumaczenie["PIN"])
 
 ###################################################################
 # definiowanie drugiego okna
@@ -173,23 +177,23 @@ def collect_data(login_window, run_LoginPage,username):
     question = ctk.CTkEntry(collect_data, 
         width=180, 
         height=30, 
-        placeholder_text="Question")
+        placeholder_text=tlumaczenie["Question"])
     
     answer = ctk.CTkEntry(collect_data, 
         width=150, 
         height=30, 
-        placeholder_text="Answer")
+        placeholder_text=tlumaczenie["Answer"])
     
     pin_number = ctk.CTkEntry(collect_data, 
         width=150, 
         height=30, 
-        placeholder_text="PIN")
+        placeholder_text=tlumaczenie["PIN"])
     
     submit_button = ctk.CTkButton(collect_data, 
         state="disabled", 
         width=50, 
         height=30, 
-        text="Submit", 
+        text=tlumaczenie["Submit"], 
         command=on_click)
     
     error_label = ctk.CTkLabel(collect_data, 
@@ -234,7 +238,7 @@ def change_password(login_window, run_LoginPage, username):
             error_label.configure(text="")
             return True
         else:
-            error_label.configure(text="Password must contain at least 12 characters including at least one uppercase letter, one lowercase letter, one digit, and one special character")
+            error_label.configure(text=tlumaczenie["Password_requirements"])
             return False
 
 ###################################################################
@@ -251,7 +255,7 @@ def change_password(login_window, run_LoginPage, username):
             else:
                 error_label.configure(text=result["message"], text_color="red")
         else:
-            error_label.configure(text="New password is not valid.", text_color="red")
+            error_label.configure(text=tlumaczenie["Invalid_password"], text_color="red")
 
 ###################################################################
 # checkbox wyswietlajacy haslo
@@ -282,7 +286,7 @@ def change_password(login_window, run_LoginPage, username):
         confirmation_window.title("Confirmation")
 
         confirmation_label = ctk.CTkLabel(confirmation_window, 
-            text="Password has been changed", 
+            text=tlumaczenie["Changed"], 
             width=250, 
             height=30)
         
@@ -318,25 +322,25 @@ def change_password(login_window, run_LoginPage, username):
         width=150, 
         height=30, 
         show="*", 
-        placeholder_text="New Password")
+        placeholder_text=tlumaczenie["New_password"])
     
     confirm_password = ctk.CTkEntry(change_password, 
         width=150, 
         height=30, 
         show="*", 
-        placeholder_text="Confirm Password")
+        placeholder_text=tlumaczenie["Confirm_password"])
     
     submit_button = ctk.CTkButton(change_password, 
         state="disabled", 
         width=50, 
         height=30, 
-        text="Submit", 
+        text=tlumaczenie["Submit"], 
         command=on_click)
     
     show_password = ctk.CTkCheckBox(change_password, 
         width=50, 
         height=30, 
-        text="Show Password", 
+        text=tlumaczenie["Show_password"], 
         command=show_password)
     
     error_label = ctk.CTkLabel(change_password, 
