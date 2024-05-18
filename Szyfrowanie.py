@@ -2,26 +2,37 @@ import hashlib
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import base64
+################################################################
+# szyfrowanie i ogolnie kryptografia
+################################################################
 
-# Funkcja haszująca hasło użytkownika za pomocą SHA-256
+################################################################
+# funkcja hashujaca haslo (SHA-256)
+################################################################
 def hash_password(password):
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     return hashed_password
 
+################################################################
 # Funkcja generująca klucz z hasła użytkownika i pinu
+################################################################
 def generate_key(answer, pin, salt):
     combined = answer + pin
     key = hashlib.sha256(combined.encode()).digest()
     return key
 
-# Funkcja szyfrująca hasło serwisu
+################################################################
+# Funkcja szyfrująca hasło serwisu (AES)
+################################################################
 def encrypt_service_password(service_password, key):
     cipher = AES.new(key, AES.MODE_GCM)
     nonce = cipher.nonce
     ciphertext, tag = cipher.encrypt_and_digest(service_password.encode('utf-8'))
     return base64.b64encode(nonce + tag + ciphertext).decode('utf-8')
 
-# Funkcja deszyfrująca hasło serwisu
+################################################################
+# Funkcja deszyfrująca hasło serwisu (AES)
+################################################################
 def decrypt_service_password(enc_service_password, key):
     enc_service_password = base64.b64decode(enc_service_password)
     nonce = enc_service_password[:16]
