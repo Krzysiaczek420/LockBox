@@ -1,0 +1,15 @@
+{
+    "User_not_found": "Nie znaleziono użytkownika. Spróbuj ponownie.",
+    "Username": "Nazwa użytkownika",
+    "Submit": "Potwierdz",
+    "Invalid_data": "Błędny PIN lub odpowiedź. Spróbuj ponownie.",
+    "Answer": "Odpowiedź",
+    "PIN": "PIN",
+    "Question": "Pytanie",
+    "Password_requirements": "Hasło musi zawierać co najmniej 12 znaków w tym jedną dużą literę, jedną małą literę, jedną cyfre i jeden znak specjalny",
+    "Invalid_password": "Hasło nieprawidłowe. Spróbuj ponownie.",
+    "Changed": "Hasło zostało zmienione",
+    "New_password": "Nowe hasło",
+    "Confirm_password": "Potwierdze hasło",
+    "Show_password": "Pokaż hasło"
+}

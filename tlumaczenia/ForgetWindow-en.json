@@ -1,0 +1,15 @@
+{
+    "User_not_found": "Username not found. Please try again.",
+    "Username": "Username",
+    "Submit": "Submit",
+    "Invalid_data": "Invalid PIN or Answer. Please try again.",
+    "Answer": "Answer",
+    "PIN": "PIN",
+    "Question": "Question",
+    "Password_requirements": "Password must contain at least 12 characters including at least one uppercase letter, one lowercase letter, one digit, and one special character",
+    "Invalid_password": "Invalid password. Please try again.",
+    "Changed": "Password has been changed",
+    "New_password": "New password",
+    "Confirm_password": "Confirm password",
+    "Show_password": "Show password"
+}
