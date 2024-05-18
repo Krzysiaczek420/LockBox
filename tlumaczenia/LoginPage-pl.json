@@ -1,0 +1,10 @@
+{
+    "login_label": "Logowanie",
+    "username_placeholder": "Nazwa użytkownika",
+    "password_placeholder": "Hasło",
+    "show_password": "Pokaż hasło",
+    "log_in_button": "Zaloguj się",
+    "new_account_button": "Utwórz konto",
+    "new_user_label": "Nowy użytkownik? Utwórz konto",
+    "forget_password_button": "Przypomnij hasło"
+}

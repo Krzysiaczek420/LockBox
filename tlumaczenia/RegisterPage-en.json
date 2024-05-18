@@ -1,0 +1,21 @@
+{
+    "Passwords_are_not_the_same": "Passwords are not the same",
+    "No_spaces": "Username cannot contain spaces",
+    "Username_length": "Username must be at least 5 characters long",
+    "Password_requirements": "Password must contain at least 12 characters including at least one uppercase letter,\n one lowercase letter, one digit, and one special character",
+    "Select_question": "Select a question",
+    "Username": "Username",
+    "Password": "Password",
+    "Confirm_password": "Confirm Password",
+    "Security_Question": "Security Question",
+    "Answer": "Security Question Answer",
+    "Submit": "Submit",
+    "Show_password": "Show password",
+    "Register": "Register",
+    "Other": "Other...",
+    "Security_question1": "What is your mother's maiden name?",
+    "Security_question2": "What is the name of your first pet?",
+    "Security_question3": "Where were you born?",
+    "Security_question4": "What was your first car?",
+    "Security_question5": "What is the name of your first school?"
+}

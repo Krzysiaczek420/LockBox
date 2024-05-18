@@ -1,0 +1,21 @@
+{
+    "Passwords_are_not_the_same": "Hasła nie są takie same",
+    "No_spaces": "Nazwa uzytkownika nie może zawierać spacji",
+    "Username_length": "Nazwa użytkownika musi mieć co najmniej 5 znaków",
+    "Password_requirements": "Hasło musi zawierać co najmniej 12 znaków w tym jedną dużą literę, jedną małą literę, jedną cyfre i jeden znak specjalny",
+    "Select_question": "Wybierz pytanie",
+    "Username": "Nazwa użytkownika",
+    "Password": "Hasło",
+    "Confirm_password": "Potwierdz hasło",
+    "Security_Question": "Pytanie bezpieczeństwa",
+    "Answer": "Odpowiedź na pytanie bezpieczeństwa",
+    "Submit": "Potwierdz",
+    "Show_password": "Pokaż hasło",
+    "Register": "Zarejestruj",
+    "Other": "Inne...",
+    "Security_question1": "Jakie jest nazwisko panieńskie twojej matki?",
+    "Security_question2": "Jak nazywało się twoje pierwsze zwierze?",
+    "Security_question3": "Gdzie się urodziłeś?",
+    "Security_question4": "Jaki był twój pierwszy samochód?",
+    "Security_question5": "Jak nazywała się twoja pierwsza szkoła?"
+}

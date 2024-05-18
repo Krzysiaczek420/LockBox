@@ -1,0 +1,10 @@
+{
+    "login_label": "Login",
+    "username_placeholder": "Username",
+    "password_placeholder": "Password",
+    "show_password": "Show password",
+    "log_in_button": "Log in",
+    "new_account_button": "New account",
+    "new_user_label": "New user? Create account",
+    "forget_password_button": "Forget password"
+}
