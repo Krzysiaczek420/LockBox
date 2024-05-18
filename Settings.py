@@ -1,18 +1,19 @@
 import json
+
 ################################################################
-# funkcja do zmieny koloru i motywu
+# funkcja do zmiany koloru i motywu
 ################################################################
 
 ################################################################
-# funkcja odczytujaca kolor i motyw z plkiku settings.json
+# funkcja odczytująca kolor i motyw z pliku settings.json
 ################################################################
-def wczytaj_ustawienia(sciezka):
+def wczytaj_ustawienia(sciezka='settings.json'):
     with open(sciezka, 'r') as plik:
         ustawienia = json.load(plik)
     return ustawienia
 
 ################################################################
-# funkcja ustawiajaca motyw i kolor
+# funkcja ustawiająca motyw i kolor
 ################################################################
 def ustaw_motyw_i_kolor(sciezka_do_pliku):
     # Słownik mapujący nazwy kolorów na ich ścieżki do plików JSON lub nazwy domyślne
@@ -35,3 +36,12 @@ def ustaw_motyw_i_kolor(sciezka_do_pliku):
     kolor = kolory.get(kolor, kolor)  # Jeśli kolor nie jest w słowniku, użyj go bezpośrednio
 
     return motyw, kolor
+
+################################################################
+# funkcja wczytująca tłumaczenie dla danego modułu i języka
+################################################################
+def wczytaj_tlumaczenie_modulu(jezyk, modul):
+    sciezka_do_tlumaczen = f'tlumaczenia/{modul}-{jezyk}.json'
+    with open(sciezka_do_tlumaczen, 'r', encoding='utf-8') as plik:
+        tlumaczenie = json.load(plik)
+    return tlumaczenie
