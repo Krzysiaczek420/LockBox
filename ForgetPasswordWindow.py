@@ -247,15 +247,23 @@ def change_password(login_window, run_LoginPage, username):
     def on_click():
         new_password = password.get()
         if check_password_validity(new_password):
-            result = Baza.reset_user_password(username, new_password)
-            if result["success"]:
-                show_confirmation_window()
-                password.configure(state="disabled")
-                confirm_password.configure(state="disabled")
-            else:
-                error_label.configure(text=result["message"], text_color="red")
+            if check_password_match():
+                result = Baza.reset_user_password(username, new_password)
+                if result["success"]:
+                    show_confirmation_window()
+                    password.configure(state="disabled")
+                    confirm_password.configure(state="disabled")
+                else:
+                    error_label.configure(text=result["message"], text_color="red")
         else:
             error_label.configure(text=tlumaczenie["Invalid_password"], text_color="red")
+
+    def check_password_match():
+        if password.get() == confirm_password.get():
+            return True
+        else:
+            error_label.configure(text=tlumaczenie["Passwords_do_not_match"], text_color="red")
+            return False
 
 ###################################################################
 # checkbox wyswietlajacy haslo
