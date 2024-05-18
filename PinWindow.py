@@ -2,18 +2,29 @@ import customtkinter as ctk
 import tkinter as tk
 import random
 import string
+################################################################
+# Okno pinu po rejestracji
+################################################################
 
+################################################################
+# funkcja generujaca losowy pin
+################################################################
 def generate_random_pin():
     return ''.join(random.choices(string.digits, k=9))
 
+################################################################
+# definiowanie okna pinu
+################################################################
 def pin_window(register_window, login_window,pin_value):
     pin_window = ctk.CTk()
     pin_window.geometry("450x200")
     pin_window.title("LockBox-Pin")
     pin_window.resizable(False, False)
 
-    #pin_value = generate_random_pin()
-
+################################################################
+# dzialania po zamknieciu okna
+# zamyknaie okna pinu i rejestracji, otwieranie okna logowania
+################################################################
     def on_closing():
         if pin_window:
             try:
@@ -27,9 +38,17 @@ def pin_window(register_window, login_window,pin_value):
             except tk.TclError:
                 pass
 
+################################################################
+#funkcja odpowiedzialna za przycisk ok
+# to samo co funkcja "on_closing()"
+################################################################
     def ok_button_press():
-        #on_closing()
         pin_window.after(200, on_closing)
+
+################################################################
+# funkcja odpowiedzialna za przycisk copy
+# kopiowanie kodu do schowka
+################################################################
     def copy_button_press():
         pin_entry.clipboard_clear()
         pin_entry.clipboard_append(pin_value)
@@ -37,16 +56,38 @@ def pin_window(register_window, login_window,pin_value):
 
     pin_window.protocol("WM_DELETE_WINDOW", on_closing)
 
-    pin_label = ctk.CTkLabel(pin_window, text="Your PIN is:\n PIN code is nessesery in password recovery", width=450, height=60,compound="center")
-    #pin_label.place(x=250, y=180)
+    pin_label = ctk.CTkLabel(pin_window, 
+        text="Your PIN is:\n PIN code is nessesery in password recovery", 
+        width=450, 
+        height=60,
+        compound="center")
 
-    pin_entry = ctk.CTkEntry(pin_window, width=150, height=30)
+################################################################
+# widgety
+################################################################
+    pin_entry = ctk.CTkEntry(pin_window, 
+        width=150, 
+        height=30)
     pin_entry.insert(0, pin_value)
     pin_entry.configure(state="readonly")
-    #pin_entry.place(x=265, y=230)
-    copy_button = ctk.CTkButton(pin_window, text="Copy", width=60, height=30, command=copy_button_press)
-    ok_button = ctk.CTkButton(pin_window, text="OK", width=60, height=30, command=ok_button_press)
-    info_label = ctk.CTkLabel(pin_window, text="", width=450, height=30,compound="center")
+
+    copy_button = ctk.CTkButton(pin_window, 
+        text="Copy", 
+        width=60, 
+        height=30, 
+        command=copy_button_press)
+    
+    ok_button = ctk.CTkButton(pin_window, 
+        text="OK", 
+        width=60, 
+        height=30, 
+        command=ok_button_press)
+    
+    info_label = ctk.CTkLabel(pin_window, 
+        text="", 
+        width=450, 
+        height=30,
+        compound="center")
 
     pin_label.place(x=0, y=20)
     pin_entry.place(x=150, y=70)
@@ -55,4 +96,3 @@ def pin_window(register_window, login_window,pin_value):
     info_label.place(x=0, y=150)
 
     pin_window.mainloop()
-
