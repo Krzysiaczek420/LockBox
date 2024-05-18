@@ -1,5 +1,6 @@
 {
     "User_not_found": "Nie znaleziono użytkownika. Spróbuj ponownie.",
+    "Passwords_do_not_match": "Hasła nie są takie same",
     "Username": "Nazwa użytkownika",
     "Submit": "Potwierdz",
     "Invalid_data": "Błędny PIN lub odpowiedź. Spróbuj ponownie.",
