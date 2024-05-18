@@ -4,7 +4,7 @@ import RegisterPage
 import Baza as baza
 import PinWindow as pin
 import ForgetPasswordWindow as forgetPW
-from Motyw import ustaw_motyw_i_kolor
+from Settings import ustaw_motyw_i_kolor, wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
 #################################################################
 # główne okno strony logowania
 #################################################################
@@ -24,6 +24,14 @@ sciezka_do_pliku = 'settings.json'
 motyw, kolor = ustaw_motyw_i_kolor(sciezka_do_pliku)
 ctk.set_appearance_mode(motyw)
 ctk.set_default_color_theme(kolor)
+
+################################################################
+# wczytanie ustawień i tłumaczeń
+################################################################
+ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
+jezyk = ustawienia.get('language', 'en')
+tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'LoginPage')
+
 
 ################################################################
 # funkcja do anulowania focusa na oknie logowania w przypadku kilkniecia poza widgety
@@ -83,43 +91,44 @@ def run_LoginPage():
 login_input = ctk.CTkEntry(login_window, 
     width=150, 
     height=30, 
-    placeholder_text="Username")
+    placeholder_text=tlumaczenie["username_placeholder"])
 
 password_input = ctk.CTkEntry(login_window, 
     width=150, 
     height=30, 
-    placeholder_text="Password", 
+    placeholder_text=tlumaczenie["password_placeholder"], 
     show ="*")
 
 show_password_cb = ctk.CTkCheckBox(login_window, 
-    text="Show password", 
+    text=tlumaczenie["show_password"], 
     width=150, 
     height=30, 
     command=show_password)
 
 login_button = ctk.CTkButton(login_window, 
-    text="Log in", 
+    text=tlumaczenie["log_in_button"], 
     width=60, 
     height=30)
 
 newUserButton = ctk.CTkButton(login_window, 
-    text="New account", 
+    text=tlumaczenie["new_account_button"], 
     width=60, 
     height=30, 
     command=NewUserButtonPressing)
 
 newAccountLabel = ctk.CTkLabel(login_window, 
-    text="New user? Create account", 
-    width=140, 
-    height=20)
+    text=tlumaczenie["new_user_label"], 
+    width=180, 
+    height=20,
+    anchor="e")
 
 loginLabel = ctk.CTkLabel(login_window, 
-    text="Login", 
+    text=tlumaczenie["login_label"], 
     width=140, 
     height=20)
 
 forgetPassword = ctk.CTkButton(login_window, 
-    text="Forget password", 
+    text=tlumaczenie["forget_password_button"], 
     width=60, 
     height=30,
     command=forget_password_pressed)
@@ -131,4 +140,4 @@ show_password_cb.place(x=265, y=300)
 login_button.place(x=365, y=350)
 forgetPassword.place(x=245, y=350)
 newAccountLabel.place(x=15, y=465)
-newUserButton.place(x=180, y=460)
+newUserButton.place(x=220, y=460)
