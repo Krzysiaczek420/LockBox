@@ -6,5 +6,8 @@
     "log_in_button": "Log in",
     "new_account_button": "New account",
     "new_user_label": "New user? Create account",
-    "forget_password_button": "Forget password"
+    "forget_password_button": "Forget password",
+    "language_label": "Select language",
+    "english": "English",
+    "polish": "Polish"
 }
