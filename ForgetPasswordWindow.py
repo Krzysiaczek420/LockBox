@@ -1,3 +1,4 @@
+import json
 import re
 import tkinter as tk
 import customtkinter as ctk 
@@ -11,11 +12,21 @@ sciezka_do_pliku = 'settings.json'
 ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
 jezyk = ustawienia.get('language', 'en')
 tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'ForgetWindow')
+def read_language_from_settings():
+        with open('settings.json', 'r') as plik:
+            ustawienia = json.load(plik)
+        return ustawienia.get('language', 'en')
+
+def update_translations_in_other_windows():
+        global tlumaczenie
+        jezyk = read_language_from_settings()
+        tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'ForgetWindow')
 ################################################################
 # pierwsze okienko, wpisywanie nazwy uzytkownika
 ################################################################
 def select_username(login_window, run_LoginPage):
-
+    read_language_from_settings()
+    update_translations_in_other_windows()
 ###################################################################
 # zmiana okien po nacisnieciu submit
 ###################################################################
@@ -110,7 +121,8 @@ def select_username(login_window, run_LoginPage):
 # drugie okno, wpisywanie odpowiedzi na pytanie bezpieczenstwa i pinu
 ###################################################################
 def collect_data(login_window, run_LoginPage,username):
-
+    read_language_from_settings()
+    update_translations_in_other_windows()
 ###################################################################
 # funkcja do zmieniania okien po nacisnieciu submit
 ###################################################################
@@ -226,7 +238,8 @@ def collect_data(login_window, run_LoginPage,username):
 # trzecie okno, wpisywanie nowego hasla
 ###################################################################
 def change_password(login_window, run_LoginPage, username):
-
+    read_language_from_settings()
+    update_translations_in_other_windows()
 ###################################################################
 # funkcja do ponownego otwarcia okna logowania po nacisnieciu submit
 ###################################################################
@@ -297,6 +310,8 @@ def change_password(login_window, run_LoginPage, username):
         confirmation_window = ctk.CTkToplevel(change_password)
         confirmation_window.geometry("300x100")
         confirmation_window.title("Confirmation")
+        read_language_from_settings()
+        update_translations_in_other_windows()
 
         confirmation_label = ctk.CTkLabel(confirmation_window, 
             text=tlumaczenie["Changed"], 
