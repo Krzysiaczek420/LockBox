@@ -1,3 +1,4 @@
+import json
 import re
 import customtkinter as ctk
 from CTkToolTip import *
@@ -26,6 +27,16 @@ def open_register_window(login_window):
     ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
     jezyk = ustawienia.get('language', 'en')
     tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'RegisterPage')
+
+    def read_language_from_settings():
+        with open('settings.json', 'r') as plik:
+            ustawienia = json.load(plik)
+        return ustawienia.get('language', 'en')
+
+    def update_translations_in_other_windows():
+        global tlumaczenie
+        jezyk = read_language_from_settings()
+        tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'RegisterPage')
 
 ################################################################
 # funkcja sprawdzajaca czy pole password i confirm password sa takie same
