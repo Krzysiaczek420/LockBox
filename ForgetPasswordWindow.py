@@ -3,6 +3,7 @@ import tkinter as tk
 import customtkinter as ctk 
 import Baza
 from Settings import wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
+import Szyfrowanie
 ################################################################
 # funkcja do odzyskiwania hasla 
 ################################################################
@@ -134,11 +135,15 @@ def collect_data(login_window, run_LoginPage,username):
 ###################################################################
     def on_click():
         pin = pin_number.get()
+        hashed_pin = Szyfrowanie.hash_password(pin)
+
         user_answer = answer.get()
+        hashed_answer = Szyfrowanie.hash_password(user_answer)
+
         correct_pin = Baza.users_collection.find_one({"username": username}, {"pin_code": 1}).get("pin_code", "")
         correct_answer = Baza.users_collection.find_one({"username": username}, {"answer": 1}).get("answer", "")
 
-        if correct_pin == pin and correct_answer == user_answer:
+        if correct_pin == hashed_pin and correct_answer == hashed_answer:
             submit_button.configure(state="disabled")
             collect_data.after(100, switch_windows)
         else:
