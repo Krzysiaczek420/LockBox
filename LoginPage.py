@@ -158,6 +158,12 @@ loginLabel = ctk.CTkLabel(login_window,
     width=140, 
     height=20)
 
+error_Label = ctk.CTkLabel(login_window, 
+    text="", 
+    width=700, 
+    height=20,
+    text_color="red")
+
 forgetPassword = ctk.CTkButton(login_window, 
     text=tlumaczenie["forget_password_button"], 
     width=60, 
@@ -186,6 +192,7 @@ loginLabel.place(x=265, y=165)
 login_input.place(x=265, y=200)
 password_input.place(x=265, y=250)
 show_password_cb.place(x=265, y=300)
+error_Label.place(x=0, y=400)
 login_button.place(x=365, y=350)
 forgetPassword.place(x=245, y=350)
 newAccountLabel.place(x=15, y=465)
