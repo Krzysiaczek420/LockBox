@@ -1,3 +1,4 @@
+import json
 import customtkinter as ctk
 import tkinter as tk
 import random
@@ -29,6 +30,16 @@ def pin_window(register_window, login_window,pin_value):
     ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
     jezyk = ustawienia.get('language', 'en')
     tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'PinWindow')
+
+    def read_language_from_settings():
+        with open('settings.json', 'r') as plik:
+            ustawienia = json.load(plik)
+        return ustawienia.get('language', 'en')
+
+    def update_translations_in_other_windows():
+        global tlumaczenie
+        jezyk = read_language_from_settings()
+        tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'PinWindow')
 
 ################################################################
 # dzialania po zamknieciu okna
