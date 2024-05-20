@@ -40,6 +40,8 @@ def add_user(username, password, security_question, answer, pin_code):
         return {"success": False, "message": "Username already exist."}
     
     hashed_password = Szyfrowanie.hash_password(password)
+    hashed_pin = Szyfrowanie.hash_password(pin_code)
+    hashed_answer = Szyfrowanie.hash_password(answer)
 
     key = get_random_bytes(32)
     salt = get_random_bytes(16)
@@ -51,8 +53,8 @@ def add_user(username, password, security_question, answer, pin_code):
         "username": username,
         "password": hashed_password,
         "security_question": security_question,
-        "answer": answer,
-        "pin_code": pin_code,
+        "answer": hashed_answer,
+        "pin_code": hashed_pin,
         "salt": base64.b64encode(salt).decode('utf-8'),
         "encrypted_key": encrypted_key,
         "systems": []
