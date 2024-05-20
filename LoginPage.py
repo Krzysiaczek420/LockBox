@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 import RegisterPage
 import Baza as baza
+import json
 import PinWindow as pin
 import ForgetPasswordWindow as forgetPW
 from Settings import ustaw_motyw_i_kolor, wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
@@ -17,6 +18,7 @@ login_window.geometry("700x500")
 login_window.title("LockBox")
 login_window.resizable(False,False)
 sciezka_do_pliku = 'settings.json'
+
 
 ################################################################
 # funkcja do ustawiania motywu i koloru w zaleznosci od danych z settings.json
@@ -57,6 +59,35 @@ def show_password():
 def NewUserButtonPressing():
     login_window.withdraw()
     RegisterPage.open_register_window(login_window)
+
+################################################################
+# funkcje odpowiedzialne za dzialanie comboboxa do zmiany jezyka
+################################################################
+def change_language(event):
+    global tlumaczenie
+    jezyk = language_mapping[language.get()]
+    tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'LoginPage')
+    update_translations()
+    
+    # Zapisz wybrany język do pliku settings.json
+    ustawienia['language'] = jezyk
+    with open(sciezka_do_pliku, 'w') as plik:
+        json.dump(ustawienia, plik)
+    language.set(language_mapping_inv[jezyk])
+
+################################################################
+# funkcja do zmieniania jezyka w aplikacji po wybraniu innego jezyka z comboboxa
+################################################################
+def update_translations():
+    loginLabel.configure(text=tlumaczenie["login_label"])
+    login_input.configure(placeholder_text = tlumaczenie["username_placeholder"])
+    password_input.configure(placeholder_text = tlumaczenie["password_placeholder"])
+    show_password_cb.configure(text=tlumaczenie["show_password"])
+    login_button.configure(text=tlumaczenie["log_in_button"])
+    newUserButton.configure(text=tlumaczenie["new_account_button"])
+    newAccountLabel.configure(text=tlumaczenie["new_user_label"])
+    forgetPassword.configure(text=tlumaczenie["forget_password_button"])
+    languageLabel.configure(text=tlumaczenie["language_label"])
 
 ################################################################
 # funkcja odpowiedzialna za przycisk "ForgetPassword"
@@ -133,6 +164,24 @@ forgetPassword = ctk.CTkButton(login_window,
     height=30,
     command=forget_password_pressed)
 
+languageLabel = ctk.CTkLabel(login_window, 
+    text = tlumaczenie["language_label"], 
+    width=100, 
+    height=20)
+
+language_mapping = {"Polish": "pl", "English": "en"}
+language_mapping_inv = {v: k for k, v in language_mapping.items()}
+
+language = ctk.CTkComboBox(login_window, 
+    values=list(language_mapping.keys()),
+    width= 90,
+    height=30,
+    state="readonly",
+    command=change_language)
+
+language.set(language_mapping_inv[jezyk])
+language.bind("<<ComboboxSelected>>", change_language)
+
 loginLabel.place(x=265, y=165)
 login_input.place(x=265, y=200)
 password_input.place(x=265, y=250)
@@ -141,3 +190,5 @@ login_button.place(x=365, y=350)
 forgetPassword.place(x=245, y=350)
 newAccountLabel.place(x=15, y=465)
 newUserButton.place(x=220, y=460)
+language.place(x=590, y=460)
+languageLabel.place(x=490, y=465)
