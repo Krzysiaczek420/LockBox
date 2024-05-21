@@ -8,6 +8,8 @@
     "new_user_label": "New user? Create account",
     "forget_password_button": "Forget password",
     "language_label": "Select language",
+    "incorrect_password": "Incorect password",
+    "no_user": "User does not exist",
     "english": "English",
     "polish": "Polish"
 }
