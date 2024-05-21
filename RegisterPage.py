@@ -117,7 +117,7 @@ def open_register_window(login_window):
 # obsluga checkboxu do wyswietlania hasla
 ################################################################
     def show_password_button():
-        if password_input.cget("show") == "*" or confirm_password_input.cget("show") == "*":
+        if show_password_var.get() == 1:
             password_input.configure(show="")
             confirm_password_input.configure(show="")
         else:
@@ -204,10 +204,12 @@ def open_register_window(login_window):
         height=30, 
         placeholder_text=tlumaczenie["Username"], )
     
+    show_password_var = tk.IntVar()
     show_password_register = ctk.CTkCheckBox(register_window, 
         text=tlumaczenie["Show_password"], 
         width=150, 
-        height=30, 
+        height=30,
+        variable=show_password_var, 
         command=show_password_button)
     
     password_input = ctk.CTkEntry(register_window, 
