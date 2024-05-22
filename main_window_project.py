@@ -86,15 +86,12 @@ def MainWindow():
         for i, item_frame in enumerate(item_frames):
             if page * items_per_page <= i < (page + 1) * items_per_page:
                 item_frame.place(x=20, y=((i % items_per_page) * 110) + 20)
-            elif (page * items_per_page - items_per_page) <= i < page * items_per_page:
-                item_frame.place(x=-590, y=((i % items_per_page) * 110) + 20)
-            elif ((page + 1) * items_per_page) <= i < ((page + 2) * items_per_page):
-                item_frame.place(x=630, y=((i % items_per_page) * 110) + 20)
             else:
                 item_frame.place_forget()
 
-    def animate_frame(x_start, x_end, y, frame, duration=0.25):
-        steps = 25
+
+    def animate_frame(x_start, x_end, y, frame, duration=0.1):
+        steps = 50
         delta_x = (x_end - x_start) / steps
         delay = duration / steps
         for step in range(steps):
@@ -107,27 +104,43 @@ def MainWindow():
     def animate_page_change(next_page, direction):
         nonlocal current_page
         if direction == 'next' and (next_page * items_per_page < total_items):
+            # Przesuń elementy z poprzedniej strony w lewo
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
                     threading.Thread(target=animate_frame, args=(20, -590, ((i % items_per_page) * 110) + 20, frame)).start()
             current_page = next_page
             show_page(current_page)
+            # Wyświetl elementy z nowej strony po prawej stronie
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
                     threading.Thread(target=animate_frame, args=(630, 20, ((i % items_per_page) * 110) + 20, frame)).start()
+            # Przesuń fragmenty elementów z następnej strony w prawo
+            if (current_page + 1) * items_per_page < total_items:
+                for i in range(items_per_page):
+                    if (current_page + 1) * items_per_page + i < total_items:
+                        frame = item_frames[(current_page + 1) * items_per_page + i]
+                        threading.Thread(target=animate_frame, args=(1250, 630, ((i % items_per_page) * 110) + 20, frame)).start()
         elif direction == 'prev' and (current_page > 0):
+            # Przesuń elementy z następnej strony w prawo
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
                     threading.Thread(target=animate_frame, args=(20, 630, ((i % items_per_page) * 110) + 20, frame)).start()
             current_page = next_page
             show_page(current_page)
+            # Wyświetl elementy z nowej strony po lewej stronie
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
                     threading.Thread(target=animate_frame, args=(-590, 20, ((i % items_per_page) * 110) + 20, frame)).start()
+            # Przesuń fragmenty elementów z poprzedniej strony w lewo
+            if current_page > 0:
+                for i in range(items_per_page):
+                    if (current_page - 1) * items_per_page + i < total_items:
+                        frame = item_frames[(current_page - 1) * items_per_page + i]
+                        threading.Thread(target=animate_frame, args=(-1010, -590, ((i % items_per_page) * 110) + 20, frame)).start()
 
     def next_page():
         if (current_page + 1) * items_per_page < total_items:
@@ -148,6 +161,16 @@ def MainWindow():
 
     show_page(current_page)
 
+    def show_first_page():
+        show_page(0)  # Wyświetl pierwszą stronę
+        # Pokaż fragmenty elementów z drugiej strony na pierwszej stronie
+        for i in range(items_per_page):
+            if items_per_page + i < total_items:
+                frame = item_frames[items_per_page + i]
+                frame.place(x=630, y=((i % items_per_page) * 110) + 20)
+
+    main_window.after(100, show_first_page) # Uruchom animację po 100 ms od uruchomienia głównego okna
+    
     main_window.mainloop()
 
 MainWindow()
