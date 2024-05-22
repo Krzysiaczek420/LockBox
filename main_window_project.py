@@ -42,7 +42,7 @@ def MainWindow():
         text="aaaaaaaaaaaaaa",
         justify="left")
     
-    content_frame = ctk.CTkFrame(main_window, width=650, height=500)
+    content_frame = ctk.CTkFrame(main_window, width=700, height=500)
     content_frame.place(x=250, y=30)  # Adjusted x-position to make space for visible parts of elements
     
     sidebar.place(x=0, y=0)
@@ -54,26 +54,31 @@ def MainWindow():
     update_time(time_label)  # Uruchom aktualizację czasu
 
     def create_item_frame(parent, index):
-        frame = ctk.CTkFrame(parent, width=610, height=100, border_width=2, border_color="black")
+        frame = ctk.CTkFrame(parent, width=610, height=150, border_width=2, border_color="black")
         
         label = ctk.CTkLabel(frame, text=f"Element {index}", width=100)
+        label2 = ctk.CTkLabel(frame, text=f"Element {index}", width=100)
+        label3 = ctk.CTkLabel(frame, text=f"Element {index}", width=100)
         textbox1 = ctk.CTkEntry(frame, width=140)
         textbox2 = ctk.CTkEntry(frame, width=140)
         textbox3 = ctk.CTkEntry(frame, width=140)
         button1 = ctk.CTkButton(frame, text="Button 1")
         button2 = ctk.CTkButton(frame, text="Button 2")
+        button3 = ctk.CTkButton(frame, text="Button 2")
+        button4 = ctk.CTkButton(frame, text="Button 2")
         
         # Ustawienie pozycji elementów w ramce
-        label.grid(row=0, column=0, padx=10, pady=10)
-        textbox1.grid(row=0, column=1, padx=10, pady=10)
-        textbox2.grid(row=0, column=2, padx=10, pady=10)
-        textbox3.grid(row=0, column=3, padx=10, pady=10)
-        button1.grid(row=1, column=1, columnspan=2, pady=10)
-        button2.grid(row=1, column=3, columnspan=2, pady=10)
+        # label.grid(row=0, column=0, padx=10, pady=10)
+        # textbox1.grid(row=0, column=1, padx=10, pady=10)
+        # textbox2.grid(row=0, column=2, padx=10, pady=10)
+        # textbox3.grid(row=0, column=3, padx=10, pady=10)
+        # button1.grid(row=1, column=1, columnspan=2, pady=10)
+        # button2.grid(row=1, column=3, columnspan=2, pady=10)
         
         return frame
 
-    items_per_page = 4
+
+    items_per_page = 3
     current_page = 0
     total_items = 17
     item_frames = []
@@ -85,13 +90,13 @@ def MainWindow():
     def show_page(page):
         for i, item_frame in enumerate(item_frames):
             if page * items_per_page <= i < (page + 1) * items_per_page:
-                item_frame.place(x=20, y=((i % items_per_page) * 110) + 20)
+                item_frame.place(x=20, y=((i % items_per_page) * 160) + 20)
             else:
                 item_frame.place_forget()
 
 
-    def animate_frame(x_start, x_end, y, frame, duration=0.1):
-        steps = 50
+    def animate_frame(x_start, x_end, y, frame, duration=0.15):
+        steps = 20  # Stała liczba kroków
         delta_x = (x_end - x_start) / steps
         delay = duration / steps
         for step in range(steps):
@@ -108,40 +113,40 @@ def MainWindow():
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
-                    threading.Thread(target=animate_frame, args=(20, -590, ((i % items_per_page) * 110) + 20, frame)).start()
+                    threading.Thread(target=animate_frame, args=(20, -590, ((i % items_per_page) * 160) + 20, frame)).start()
             current_page = next_page
             show_page(current_page)
             # Wyświetl elementy z nowej strony po prawej stronie
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
-                    threading.Thread(target=animate_frame, args=(630, 20, ((i % items_per_page) * 110) + 20, frame)).start()
+                    threading.Thread(target=animate_frame, args=(630, 20, ((i % items_per_page) * 160) + 20, frame)).start()
             # Przesuń fragmenty elementów z następnej strony w prawo
             if (current_page + 1) * items_per_page < total_items:
                 for i in range(items_per_page):
                     if (current_page + 1) * items_per_page + i < total_items:
                         frame = item_frames[(current_page + 1) * items_per_page + i]
-                        threading.Thread(target=animate_frame, args=(1250, 630, ((i % items_per_page) * 110) + 20, frame)).start()
+                        threading.Thread(target=animate_frame, args=(1250, 630, ((i % items_per_page) * 160) + 20, frame)).start()
         elif direction == 'prev' and (current_page > 0):
             # Przesuń elementy z następnej strony w prawo
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
-                    threading.Thread(target=animate_frame, args=(20, 630, ((i % items_per_page) * 110) + 20, frame)).start()
+                    threading.Thread(target=animate_frame, args=(20, 630, ((i % items_per_page) * 160) + 20, frame)).start()
             current_page = next_page
             show_page(current_page)
             # Wyświetl elementy z nowej strony po lewej stronie
             for i in range(items_per_page):
                 if current_page * items_per_page + i < total_items:
                     frame = item_frames[current_page * items_per_page + i]
-                    threading.Thread(target=animate_frame, args=(-590, 20, ((i % items_per_page) * 110) + 20, frame)).start()
+                    threading.Thread(target=animate_frame, args=(-590, 20, ((i % items_per_page) * 160) + 20, frame)).start()
             # Przesuń fragmenty elementów z poprzedniej strony w lewo
             if current_page > 0:
                 for i in range(items_per_page):
                     if (current_page - 1) * items_per_page + i < total_items:
                         frame = item_frames[(current_page - 1) * items_per_page + i]
-                        threading.Thread(target=animate_frame, args=(-1010, -590, ((i % items_per_page) * 110) + 20, frame)).start()
-
+                        threading.Thread(target=animate_frame, args=(-1010, -590, ((i % items_per_page) * 160) + 20, frame)).start()
+    
     def next_page():
         if (current_page + 1) * items_per_page < total_items:
             animate_page_change(current_page + 1, 'next')
@@ -167,7 +172,7 @@ def MainWindow():
         for i in range(items_per_page):
             if items_per_page + i < total_items:
                 frame = item_frames[items_per_page + i]
-                frame.place(x=630, y=((i % items_per_page) * 110) + 20)
+                frame.place(x=640, y=((i % items_per_page) * 160) + 20)
 
     main_window.after(100, show_first_page) # Uruchom animację po 100 ms od uruchomienia głównego okna
     
