@@ -151,7 +151,8 @@ def login():
             password_input.delete(0, tk.END)
             password_input.configure(placeholder_text = tlumaczenie["password_placeholder"])
             error_Label.configure(text="")
-            show_password_cb.toggle()
+            if show_password_var.get() == 1:
+                show_password_cb.toggle()
             main.MainWindow(login_window, username_in)
             
         else:
