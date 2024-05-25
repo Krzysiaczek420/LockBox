@@ -39,58 +39,33 @@ def MainWindow():
 
     def create_item_frame(parent, index):
         frame = ctk.CTkFrame(parent, width=610, height=185, border_width=2, border_color="black")
-        system_label = ctk.CTkLabel(frame, text=f"system", width=40,anchor="w")
-        system = ctk.CTkTextbox(frame, width=150, height=30)
-        login_label = ctk.CTkLabel(frame, text=f"login", width=100,anchor="w")
-        haslo_label = ctk.CTkLabel(frame, text=f"haslo", width=100,anchor="w")
-        note_label = ctk.CTkLabel(frame, text=f"note", width=100,height=20,anchor="w")
-        login = ctk.CTkTextbox(frame, width=150,height=30)
-        haslo = ctk.CTkTextbox(frame, width=150,height=30)
+        system_label = ctk.CTkLabel(frame, text=f"system", width=40,height = 20,anchor="w")
+        system = ctk.CTkTextbox(frame,wrap="none", width=180, height=30)
+        login_label = ctk.CTkLabel(frame, text=f"login", width=100,height = 20,anchor="w")
+        haslo_label = ctk.CTkLabel(frame, text=f"haslo", width=100,height = 20,anchor="w")
+        note_label = ctk.CTkLabel(frame, text=f"note", width=100,height=15,anchor="w")
+        login = ctk.CTkTextbox(frame,wrap="none", width=180,height=30)
+        haslo = ctk.CTkTextbox(frame,wrap="none", width=180,height=30)
         #note = ctk.CTkTextbox(frame, width=130,height=100)
         copy = ctk.CTkButton(frame, text="copy password", width=100)
         delete = ctk.CTkButton(frame, text="delete", width=100)
         edit = ctk.CTkButton(frame, text="edit", width=100)
-        button4 = ctk.CTkButton(frame, text="Button 4")
-
-
-        # layout 1
-        # note = ctk.CTkTextbox(frame, width=130,height=100)
-        # system_label.place(x=30,y=5)
-        # login_label.place(x=175, y=5)
-        # haslo_label.place(x=325, y=5)
-        # note_label.place(x=475, y=5)
-        # system.place(x=20,y=35)
-        # login.place(x=165,y=35)
-        # haslo.place(x=315,y=35)
-        # note.place(x=465,y=35)
-        # delete.place(x=20,y=90)
-        # edit.place(x=165,y=90)
-        # copy.place(x=315,y=90)
-        
-
-        # layout 2
-        # note = ctk.CTkTextbox(frame, width=375,height=70)
-        # system_label.place(x=30,y=5)
-        # login_label.place(x=175, y=5)
-        # haslo_label.place(x=325, y=5)
-        # note_label.place(x=30, y=70)
-        # system.place(x=20,y=35)
-        # login.place(x=165,y=35)
-        # haslo.place(x=315,y=35)
-        # note.place(x=70,y=75)
-        # copy.place(x=465,y=25)
-        # edit.place(x=465, y=65)
-        # delete.place(x=465, y=105)
-
+        #show_pw = ctk.CTkCheckBox(frame, text="show password", width=90, height=30,checkbox_height=20, checkbox_width=20)
+        show_pw = ctk.CTkButton(frame, text="", width=100)
         # layout 3
-        note = ctk.CTkTextbox(frame, width=270,height=120)
-        system.place(x=20,y=20)
-        login.place(x=20,y=65)
-        haslo.place(x=20,y=110)
-        note.place(x= 185,y=20)
-        copy.place(x=465,y=25)
-        edit.place(x=465, y=65)
-        delete.place(x=465, y=105)
+        note = ctk.CTkTextbox(frame, width=260,height=140)
+        system_label.place(x=30,y=5)
+        system.place(x=20,y=25)
+        login_label.place(x=30, y=60)
+        login.place(x=20,y=80)
+        haslo_label.place(x=30,y=115)
+        haslo.place(x=20,y=135)
+        note_label.place(x=225, y=6)
+        note.place(x= 215,y=25)
+        copy.place(x=490,y=20)
+        edit.place(x=490, y=60)
+        delete.place(x=490, y=100)
+        show_pw.place(x=490, y=140)
 
         return frame
 
@@ -116,18 +91,24 @@ def MainWindow():
     def next_page():
         nonlocal current_page
         if (current_page + 1) * items_per_page < total_items:
+            block_button()
             current_page = animate_page_change(current_page, current_page + 1, 'next', item_frames, items_per_page, total_items, show_page, content_frame, main_window)
-            block_buttons()
+            main_window.after(100, unblock_buttons)  # Adjust delay as needed based on animation duration
             print_current_page_info(current_page, max_pages)
 
     def prev_page():
         nonlocal current_page
         if current_page > 0:
+            block_button()
             current_page = animate_page_change(current_page, current_page - 1, 'prev', item_frames, items_per_page, total_items, show_page, content_frame, main_window)
-            block_buttons()
+            main_window.after(100, unblock_buttons)  # Adjust delay as needed based on animation duration
             print_current_page_info(current_page, max_pages)
 
-    def block_buttons():
+    def block_button():
+        prev_button.configure(state='disabled')
+        next_button.configure(state='disabled')
+
+    def unblock_buttons():
         if current_page == 0:
             prev_button.configure(state='disabled')
             next_button.configure(state='normal')
@@ -157,7 +138,7 @@ def MainWindow():
                 frame.place(x=670, y=i * 200 + 10, in_=content_frame)
 
     main_window.after(100, show_first_page)
-    block_buttons()
+    unblock_buttons()
     print_current_page_info(current_page, max_pages)
     main_window.mainloop()
 
