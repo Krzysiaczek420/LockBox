@@ -89,7 +89,7 @@ def open_register_window(login_window):
 ################################################################
     def check_password_validity():
         password = password_input.get()
-        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$"
+        pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$.!%*?&])[A-Za-z\d@$.!%*?&]{12,}$"
         if re.match(pattern, password):
             error_label.configure(text="")
             return True
