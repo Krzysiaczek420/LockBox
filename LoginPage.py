@@ -1,3 +1,4 @@
+import asyncio
 import customtkinter as ctk
 import tkinter as tk
 import RegisterPage
@@ -153,7 +154,7 @@ def login():
             error_Label.configure(text="")
             if show_password_var.get() == 1:
                 show_password_cb.toggle()
-            main.MainWindow(login_window, username_in)
+            asyncio.run(main.MainWindow(login_window, username_in))
             
         else:
             current_error = "incorrect_password"
