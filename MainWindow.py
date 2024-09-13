@@ -2,31 +2,35 @@ import customtkinter as ctk
 import tkinter as tk
 import math
 from datetime import datetime
-import threading
 
-async def MainWindow(login_window, username_in):
-    # Inicjalizacja głównego okna
-    main_window = ctk.CTk()
-    main_window.geometry("1000x700")
-    main_window.title("LockBox")
-    main_window.resizable(False, False)
+def MainWindow(window,show_login_page, username_in):
+    # Zmiana tytułu okna i ustawienie rozmiaru
+    window.geometry("1000x700")
+    window.title("LockBox")
+    window.resizable(False, False)
     user = username_in
 
-    # Wątek do aktualizacji czasu
+    # Ukrywanie wszystkich istniejących widgetów w oknie
+    for widget in window.winfo_children():
+        widget.place_forget()
+
+    # Funkcja aktualizująca czas na stronie
     def update_time(label):
-        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         label.configure(text=current_time)
         label.after(1000, update_time, label)
 
-    sidebar = ctk.CTkFrame(main_window, width=200, height=670, corner_radius=0)
-    info_frame = ctk.CTkFrame(main_window, width=1000, height=30, corner_radius=0)
+    # Ustawienia ramki bocznej i informacyjnej
+    sidebar = ctk.CTkFrame(window, width=200, height=670, corner_radius=0)
+    info_frame = ctk.CTkFrame(window, width=1000, height=30, corner_radius=0)
 
     hello_label = ctk.CTkLabel(sidebar, width=200, height=80, text=f"witaj \n{user}", font=("default", 24))
     time_label = ctk.CTkLabel(info_frame, width=120, height=30, text="", justify="right")
     info_label = ctk.CTkLabel(info_frame, width=120, height=30, text="aaaaaaaaaaaaaa", justify="left")
-    pages_label = ctk.CTkLabel(main_window, text="")
+    pages_label = ctk.CTkLabel(window, text="")
 
-    content_frame = ctk.CTkFrame(main_window, width=700, height=600)
+    # Ustawienie głównej ramki na zawartość
+    content_frame = ctk.CTkFrame(window, width=700, height=600)
     content_frame.place(x=250, y=30)
 
     sidebar.place(x=0, y=0)
@@ -36,6 +40,9 @@ async def MainWindow(login_window, username_in):
     info_label.place(x=20, y=0)
     pages_label.place(x=760, y=640)
 
+    update_time(time_label)  # Rozpoczęcie aktualizacji czasu
+
+    # Funkcja tworzenia poszczególnych elementów
     def create_item_frame(parent, index):
         frame = ctk.CTkFrame(parent, width=670, height=185, border_width=2, border_color="black")
         system_label = ctk.CTkLabel(frame, text="system", width=40, height=20, anchor="w")
@@ -76,6 +83,7 @@ async def MainWindow(login_window, username_in):
 
         return frame
 
+    # Konfiguracja stronicowania i tworzenie elementów
     items_per_page = 3
     current_page = 0
     total_items = 12
@@ -90,6 +98,7 @@ async def MainWindow(login_window, username_in):
         item_frame = create_item_frame(content_frame, i)
         item_frames.append(item_frame)
 
+    # Funkcja wyświetlania strony
     def show_page(page):
         top_y_position = 10
         x_position = 15
@@ -102,17 +111,18 @@ async def MainWindow(login_window, username_in):
             item_frame.place(x=x_position, y=top_y_position, in_=content_frame)
             top_y_position += 200
 
+    # Obsługa zamykania okna
     def on_closing():
-        if main_window and main_window.winfo_exists():
+        # Dodaj tutaj wszelkie operacje czyszczenia, zapisywania itp.
+        if window and window.winfo_exists():
             try:
-                main_window.destroy()
-                if login_window and login_window.winfo_exists():
-                    login_window.after(100, login_window.deiconify)
+                window.destroy()
             except tk.TclError:
                 pass
 
-    main_window.protocol("WM_DELETE_WINDOW", on_closing)
+    window.protocol("WM_DELETE_WINDOW", on_closing)
 
+    # Funkcje przełączania stron
     def next_page():
         nonlocal current_page
         if (current_page + 1) * items_per_page < total_items:
@@ -144,8 +154,8 @@ async def MainWindow(login_window, username_in):
             prev_button.configure(state='normal')
             next_button.configure(state='normal')
 
-    prev_button = ctk.CTkButton(main_window, text="<", width=20, height=20, command=prev_page)
-    next_button = ctk.CTkButton(main_window, text=">", width=20, height=20, command=next_page)
+    prev_button = ctk.CTkButton(window, text="<", width=20, height=20, command=prev_page)
+    next_button = ctk.CTkButton(window, text=">", width=20, height=20, command=next_page)
 
     prev_button.place(x=895, y=640)
     next_button.place(x=925, y=640)
@@ -159,5 +169,5 @@ async def MainWindow(login_window, username_in):
             top_y_position += 200
 
     unblock_buttons()
+    show_first_page()
     print_current_page_info(current_page, max_pages)
-    main_window.mainloop()
