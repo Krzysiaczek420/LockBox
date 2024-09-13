@@ -37,30 +37,34 @@ def close_database_connection():
 def add_user(username, password, security_question, answer, pin_code):
     existing_user = users_collection.find_one({"username": username})
     if existing_user:
-        return {"success": False, "message": "Username already exist."}
+        return {"success": False, "message": "Username already exists."}
     
-    hashed_password = Szyfrowanie.hash_password(password)
-    hashed_pin = Szyfrowanie.hash_password(pin_code)
-    hashed_answer = Szyfrowanie.hash_password(answer)
+    # Hashowanie hasła, odpowiedzi na pytanie i pinu za pomocą bcrypt
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_pin = bcrypt.hashpw(pin_code.encode('utf-8'), bcrypt.gensalt())
+    hashed_answer = bcrypt.hashpw(answer.encode('utf-8'), bcrypt.gensalt())
 
+    # Generowanie losowego klucza i soli
     key = get_random_bytes(32)
     salt = get_random_bytes(16)
 
+    # Tworzenie klucza szyfrowania klucza
     key_encryption_key = Szyfrowanie.generate_key(answer, pin_code, salt)
     encrypted_key = Szyfrowanie.encrypt_service_password(base64.b64encode(key).decode('utf-8'), key_encryption_key)
 
     user_data = {
         "username": username,
-        "password": hashed_password,
+        "password": hashed_password.decode('utf-8'),
         "security_question": security_question,
-        "answer": hashed_answer,
-        "pin_code": hashed_pin,
+        "answer": hashed_answer.decode('utf-8'),
         "salt": base64.b64encode(salt).decode('utf-8'),
+        "pin_code": hashed_pin.decode('utf-8'),
         "encrypted_key": encrypted_key,
         "systems": []
     }
     users_collection.insert_one(user_data)
-    return {"success": True, "message": "User has been added succesfully."}
+    return {"success": True, "message": "User has been added successfully."}
+
 
 #################################################################
 # reset hasla uzytkownika(forget password)
