@@ -17,7 +17,7 @@ def hash_password(password):
 # Funkcja generująca klucz z hasła użytkownika i pinu
 ################################################################
 def generate_key(answer, pin, salt):
-    combined = answer + pin
+    combined = answer + pin + base64.b64encode(salt).decode('utf-8')
     key = hashlib.sha256(combined.encode()).digest()
     return key
 
