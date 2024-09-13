@@ -17,7 +17,7 @@ def generate_random_pin():
 ################################################################
 # definiowanie okna pinu
 ################################################################
-def pin_window(register_window, login_window,pin_value):
+def pin_window(main_window,pin_value, show_login_callback):
     pin_window = ctk.CTk()
     pin_window.geometry("450x200")
     pin_window.title("LockBox-Pin")
@@ -30,6 +30,12 @@ def pin_window(register_window, login_window,pin_value):
     ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
     jezyk = ustawienia.get('language', 'en')
     tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'PinWindow')
+
+    def go_back_to_login():
+        for widget in main_window.winfo_children():
+            widget.place_forget()
+        main_window.title("Lockbox - Login")
+        show_login_callback()
 
     def read_language_from_settings():
         with open('settings.json', 'r') as plik:
@@ -50,11 +56,8 @@ def pin_window(register_window, login_window,pin_value):
             try:
                 if hasattr(pin_window, "_after_id"):
                     pin_window.after_cancel(pin_window._after_id)
-                if register_window and register_window.winfo_exists():
-                    register_window.destroy()
-                if login_window and login_window.winfo_exists():
-                    login_window.deiconify()
                 pin_window.destroy()
+                go_back_to_login()
             except tk.TclError:
                 pass
 
