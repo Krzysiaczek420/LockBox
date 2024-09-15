@@ -1,6 +1,7 @@
 import json
 import re
 import tkinter as tk
+import bcrypt
 import customtkinter as ctk 
 import Baza
 from Settings import wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
@@ -147,21 +148,29 @@ def collect_data(login_window, run_LoginPage,username):
 ###################################################################
     def on_click():
         pin = pin_number.get()
-        hashed_pin = Szyfrowanie.hash_password(pin)
-
         user_answer = answer.get()
-        hashed_answer = Szyfrowanie.hash_password(user_answer)
 
-        correct_pin = Baza.users_collection.find_one({"username": username}, {"pin_code": 1}).get("pin_code", "")
-        correct_answer = Baza.users_collection.find_one({"username": username}, {"answer": 1}).get("answer", "")
+        # Pobieranie hashów z bazy danych
+        user_data = Baza.users_collection.find_one({"username": username}, {"pin_code": 1, "answer": 1})
 
-        if correct_pin == hashed_pin and correct_answer == hashed_answer:
-            submit_button.configure(state="disabled")
-            collect_data.after(100, switch_windows)
+        if user_data:
+            correct_pin_hash = user_data.get("pin_code", "")
+            correct_answer_hash = user_data.get("answer", "")
+
+            # Sprawdzanie czy wprowadzone dane są poprawne za pomocą bcrypt
+            is_pin_correct = bcrypt.checkpw(pin.encode('utf-8'), correct_pin_hash.encode('utf-8'))
+            is_answer_correct = bcrypt.checkpw(user_answer.encode('utf-8'), correct_answer_hash.encode('utf-8'))
+
+            if is_pin_correct and is_answer_correct:
+                submit_button.configure(state="disabled")
+                collect_data.after(100, switch_windows)
+            else:
+                clear_textboxes()
+                error_label.configure(text=tlumaczenie["Invalid_data"], justify="center")
+                collect_data.focus_set()
         else:
-            clear_textboxes()
-            error_label.configure(text=tlumaczenie["Invalid_data"],justify="center")
-            collect_data.focus_set()
+            error_label.configure(text=tlumaczenie["User_not_found"], justify="center")
+
 
 ###################################################################
 # funkcja sprawdzajaca czy textboxy nie sa puste
