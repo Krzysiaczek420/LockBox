@@ -221,6 +221,7 @@ def show_register_page(window, show_login_callback):
     back_button = ctk.CTkButton(
         window, 
         text = tlumaczenie["Back"],
+        width=70,
         command = go_back_to_login)
                                 
 
