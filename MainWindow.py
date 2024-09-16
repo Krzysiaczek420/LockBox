@@ -2,31 +2,142 @@ import customtkinter as ctk
 import tkinter as tk
 import math
 from datetime import datetime
+from Settings import ustaw_motyw_i_kolor, wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
 
-def MainWindow(window,show_login_page, username_in):
-    # Zmiana tytułu okna i ustawienie rozmiaru
+sciezka_do_pliku = 'settings.json'
+timeout_duration = 1000 * 10
+warning_duration = timeout_duration - 1000 * 5
+def MainWindow(window,show_login_callback, username_in):
     window.geometry("1000x700")
     window.title("LockBox")
     window.resizable(False, False)
     user = username_in
 
-    # Ukrywanie wszystkich istniejących widgetów w oknie
+    ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
+    jezyk = ustawienia.get('language', 'en')
+    tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'MainWindow')
+    active = True
+
     for widget in window.winfo_children():
         widget.place_forget()
+    
+    def go_back_to_login():
+        nonlocal active
+        active = False
+        cancel_timers()
+        for widget in window.winfo_children():
+            widget.place_forget()
+        window.title("LockBox - Login")
+        window.geometry("700x500")
+        show_login_callback()
 
-    # Funkcja aktualizująca czas na stronie
     def update_time(label):
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         label.configure(text=current_time)
         label.after(1000, update_time, label)
+    
+    def switch_to_main():
+        nonlocal active
+        active = True
+        reset_timer()
 
-    # Ustawienia ramki bocznej i informacyjnej
+    # warning_frame = ctk.CTkFrame(window, width=200, height=100)
+    # warning_label = ctk.CTkLabel(warning_frame, text="zaraz cie wyloguje")
+    # continue_button = ctk.CTkButton(warning_frame, text="continue",command=reset_timer)
+    # warning_label.place(relx=0.5, rely=0.35, anchor="center")
+    # continue_button.place(relx=0.5, rely=0.7, anchor="center")
+
+    timer_id = None
+    warning_timer_id = None
+
+    def show_warning():
+        nonlocal warning_frame, warning_timer_id
+        warning_frame.place(relx=0.5, rely=0.5, anchor="center")
+        warning_frame.lift()  # Wyśrodkowanie ramki w oknie
+        warning_timer_id = window.after(warning_duration, timeout)  # Uruchom timer wylogowania
+
+    def hide_warning():
+        warning_frame.place_forget()  # Ukryj ramkę komunikatu
+
+    def timeout():
+        if active:  # Only timeout if still active
+            hide_warning()  # Hide the warning frame
+            go_back_to_login()
+            show_logout_info()
+    
+    def show_logout_info():
+        def accept():
+            logout_frame.place_forget()
+            window.grab_set()
+        logout_frame = ctk.CTkFrame(window, width=200, height=100)
+        logout_label = ctk.CTkLabel(logout_frame, text="wylogowano cie z powodu zbyt dlugiego czasu bez aktywnosci")
+        logout_button = ctk.CTkButton(logout_frame, text="ok",command=accept)
+        logout_label.place(relx=0.5, rely=0.35, anchor="center")
+        logout_button.place(relx=0.5, rely=0.7, anchor="center")
+        logout_frame.place(relx=0.5, rely=0.5, anchor="center")
+        logout_frame.grab_set()
+
+    def reset_timer(event=None):
+        if active:
+            cancel_timers()  # Cancel any existing timers
+            hide_warning()  # Hide the warning frame
+            start_timer()  # Uruchom nowy timer
+
+    def start_timer():
+        nonlocal timer_id
+        timer_id = window.after(timeout_duration, show_warning)
+
+    def cancel_timers():
+        nonlocal timer_id, warning_timer_id
+        if timer_id:
+            window.after_cancel(timer_id)  # Cancel the timeout timer
+        if warning_timer_id:
+            window.after_cancel(warning_timer_id)  # Cancel the warning timer
+
+
+    timer_id = window.after(timeout_duration, show_warning)
+
+    window.bind_all("<Any-KeyPress>", reset_timer)
+    window.bind_all("<Button>", reset_timer)
+
+    warning_frame = ctk.CTkFrame(window, width=200, height=100)
+    warning_label = ctk.CTkLabel(warning_frame, text="zaraz cie wyloguje")
+    continue_button = ctk.CTkButton(warning_frame, text="continue",command=reset_timer)
+    warning_label.place(relx=0.5, rely=0.35, anchor="center")
+    continue_button.place(relx=0.5, rely=0.7, anchor="center")
+
+    def logout():
+        dialog_frame = ctk.CTkFrame(window, width=200, height=100)
+        dialog_frame.place(relx=0.5, rely=0.5, anchor='center')
+        dialog_frame.grab_set()
+
+        close_label = ctk.CTkLabel(dialog_frame, width=200, text="wyloguj",anchor="center")
+        close_label.place(x=0, y=15)
+
+        # Funkcja do zamknięcia aplikacji
+        def confirm_close():
+            go_back_to_login()
+            window.grab_set()
+
+        # Funkcja do anulowania zamknięcia
+        def cancel_close():
+            dialog_frame.destroy()
+            window.grab_set()
+
+        yes_button = ctk.CTkButton(dialog_frame, width=50, height=30, text="yes", command=confirm_close)
+        no_button = ctk.CTkButton(dialog_frame, width=50, height=30, text="no", command=cancel_close)
+
+        yes_button.place(x=25, y=60)
+        no_button.place(x=125, y=60)
+
     sidebar = ctk.CTkFrame(window, width=200, height=670, corner_radius=0)
+    logout = ctk.CTkButton(sidebar, width=150,text="Logout", command=logout)
+    logout.place(x=25, y=500)
     info_frame = ctk.CTkFrame(window, width=1000, height=30, corner_radius=0)
 
-    hello_label = ctk.CTkLabel(sidebar, width=200, height=80, text=f"witaj \n{user}", font=("default", 24))
+    hello_label = ctk.CTkLabel(sidebar, width=200, height=80, text=f"{tlumaczenie["Hello"]} \n{user}", font=("default", 24))
     time_label = ctk.CTkLabel(info_frame, width=120, height=30, text="", justify="right")
-    info_label = ctk.CTkLabel(info_frame, width=120, height=30, text="aaaaaaaaaaaaaa", justify="left")
+    info_label = ctk.CTkLabel(info_frame, width=120, height=30, text="", justify="left")
     pages_label = ctk.CTkLabel(window, text="")
 
     # Ustawienie głównej ramki na zawartość
@@ -86,7 +197,7 @@ def MainWindow(window,show_login_page, username_in):
     # Konfiguracja stronicowania i tworzenie elementów
     items_per_page = 3
     current_page = 0
-    total_items = 12
+    total_items = 4
     item_frames = []
     max_pages = math.ceil(total_items / items_per_page)
 
@@ -111,18 +222,6 @@ def MainWindow(window,show_login_page, username_in):
             item_frame.place(x=x_position, y=top_y_position, in_=content_frame)
             top_y_position += 200
 
-    # Obsługa zamykania okna
-    def on_closing():
-        # Dodaj tutaj wszelkie operacje czyszczenia, zapisywania itp.
-        if window and window.winfo_exists():
-            try:
-                window.destroy()
-            except tk.TclError:
-                pass
-
-    window.protocol("WM_DELETE_WINDOW", on_closing)
-
-    # Funkcje przełączania stron
     def next_page():
         nonlocal current_page
         if (current_page + 1) * items_per_page < total_items:
@@ -144,7 +243,10 @@ def MainWindow(window,show_login_page, username_in):
         next_button.configure(state='disabled')
 
     def unblock_buttons():
-        if current_page == 0:
+        if current_page == 0 and max_pages==1:
+            prev_button.configure(state='disabled')
+            next_button.configure(state='disabled')
+        elif current_page == 0 and max_pages!=1:
             prev_button.configure(state='disabled')
             next_button.configure(state='normal')
         elif (current_page + 1) * items_per_page >= total_items:
