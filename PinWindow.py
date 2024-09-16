@@ -113,8 +113,8 @@ def pin_window(main_window,pin_value, show_login_callback):
         compound="center")
 
     pin_label.place(x=0, y=20)
-    pin_entry.place(x=150, y=70)
-    copy_button.place(x=320, y=70)
+    pin_entry.place(x=150, y=80)
+    copy_button.place(x=320, y=80)
     ok_button.place(x=195, y=120)
     info_label.place(x=0, y=150)
 
