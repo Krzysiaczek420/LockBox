@@ -1,264 +1,170 @@
 import json
 import re
-import tkinter as tk
-import bcrypt
-import customtkinter as ctk 
+import customtkinter as ctk
 import Baza
 from Settings import wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
 import Szyfrowanie
-################################################################
-# funkcja do odzyskiwania hasla 
-################################################################
+
 sciezka_do_pliku = 'settings.json'
 ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
 jezyk = ustawienia.get('language', 'en')
 tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'ForgetWindow')
+
 def read_language_from_settings():
-        with open('settings.json', 'r') as plik:
-            ustawienia = json.load(plik)
-        return ustawienia.get('language', 'en')
+    with open('settings.json', 'r') as plik:
+        ustawienia = json.load(plik)
+    return ustawienia.get('language', 'en')
 
 def update_translations_in_other_windows():
-        global tlumaczenie
-        jezyk = read_language_from_settings()
-        tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'ForgetWindow')
-################################################################
-# pierwsze okienko, wpisywanie nazwy uzytkownika
-################################################################
-def select_username(login_window, run_LoginPage):
+    global tlumaczenie
+    jezyk = read_language_from_settings()
+    tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'ForgetWindow')
+##########################################################
+# wybór uzytkownika
+##########################################################
+def select_username(window, show_login_callback):
+    window.geometry("350x200")
+    window.title("LockBox - Reset Password")
     read_language_from_settings()
     update_translations_in_other_windows()
-###################################################################
-# zmiana okien po nacisnieciu submit
-###################################################################
-    def switch_windows(username):
-        select_username.destroy()
-        collect_data(login_window, run_LoginPage,username)
 
-################################################################
-# funkcja do sprawdzania czy uzytkownik istnieje w bazie danych
-################################################################
+    def go_back_to_login():
+        for widget in window.winfo_children():
+            widget.place_forget()
+        window.title("LockBox - Login")
+        window.geometry("700x500")
+        show_login_callback()
+
+    def switch_to_collect_data(username):
+        hide_select_username_page()
+        collect_data(window, show_login_callback, username)
+
     def check_user_in_database(username):
         user = Baza.users_collection.find_one({"username": username})
         return user is not None
 
-################################################################
-# dzialanie przycisku "submit"
-# jesli uzytkownik istnieje w bazie danych to przejdz do kolejnego okna
-# jesli uzytkownik nie istnieje w bazie danych to wyczysc pola i pokazac komunikat
-################################################################
-    def on_click():
-        user = username.get()
+    def on_submit():
+        user = username_entry.get()
         if check_user_in_database(user):
             submit_button.configure(state="disabled")
-            select_username.after(100, lambda: switch_windows(user))
+            window.after(100, lambda: switch_to_collect_data(user))
         else:
             clear_textboxes()
-            error_label.configure(text=tlumaczenie["User_not_found"],text_color="red")
-            select_username.focus_set() 
+            error_label.configure(text=tlumaczenie["User_not_found"], text_color="red")
 
-#################################################################
-# funkcja aktywujaca guzik gdy pole nie jest puste
-#################################################################   
-    def check_username(event=None):
-        if username.get() == "":  
-            submit_button.configure(state="disabled")  
+    def clear_textboxes():
+        username_entry.delete(0, ctk.END)
+        username_entry.configure(placeholder_text=tlumaczenie["Username"])
+
+    def check_username():
+        if username_entry.get() == "":
+            submit_button.configure(state="disabled")
         else:
             submit_button.configure(state="normal")
 
-##################################################################
-# funckaj do przenoszenia skupienia na okno glowne
-# w przypadku klikniecia poza textbox
-##################################################################
-    def cancel_focus(event=None):
-        if event:
-            widget = select_username.winfo_containing(event.x_root, event.y_root)
-            if widget == select_username:
-                select_username.focus_set()
-
- ##################################################################
- # funkcja do czyszczenia textboxow (bledna nazwa uzytkownika)
- ###################################################################   
-    def clear_textboxes():
-        username.delete(0, tk.END)
-        username.configure(placeholder_text=tlumaczenie["Username"])
-    
-###################################################################
-# definiowanie okna glownego
-###################################################################
-    select_username = ctk.CTk()
-    select_username.geometry("450x200")
-    select_username.title("LockBox-Forget Password")
-    select_username.resizable(False, False)
-    select_username.protocol("WM_DELETE_WINDOW", lambda: on_closing(select_username, login_window))
-    select_username.bind("<Button-1>", cancel_focus)
-
-    username = ctk.CTkEntry(select_username, 
-        width=150, 
-        height=30, 
-        placeholder_text=tlumaczenie["Username"])
-    
-    submit_button = ctk.CTkButton(select_username,
-        state="disabled", 
-        width=50, 
-        height=30, 
-        text=tlumaczenie["Submit"], 
-        command=on_click)
-    
-    error_label = ctk.CTkLabel(select_username, 
-        width=450, 
-        height=30, 
-        text="",
-        compound="center")
-
-    username.place(x=120, y=75)
+    # Definiowanie widżetów
+    username_entry = ctk.CTkEntry(window, width=150, height=30, placeholder_text=tlumaczenie["Username"])
+    submit_button = ctk.CTkButton(window, state="disabled", width=50, height=30, text=tlumaczenie["Submit"], command=on_submit)
+    error_label = ctk.CTkLabel(window, width=450, height=30, text="", compound="center")
+    cancel_button = ctk.CTkButton(window, width=50, height=30, text=tlumaczenie["Cancel"], command=go_back_to_login)
+    # Umieszczanie widżetów na ekranie
+    username_entry.place(x=120, y=75)
     submit_button.place(x=280, y=75)
+    cancel_button.place(x=15, y=15)
     error_label.place(x=0, y=150)
 
-    username.bind("<KeyRelease>", lambda event: check_username())
-    select_username.mainloop()
+    username_entry.bind("<KeyRelease>", lambda event: check_username())
 
-###################################################################
-# drugie okno, wpisywanie odpowiedzi na pytanie bezpieczenstwa i pinu
-###################################################################
-def collect_data(login_window, run_LoginPage,username):
+    def hide_select_username_page():
+        username_entry.place_forget()
+        submit_button.place_forget()
+        error_label.place_forget()
+##########################################################
+# sprawdzanie czy dane sa poprawne
+##########################################################
+def collect_data(window, show_login_callback, username):
+    """Wyświetla ekran weryfikacji danych (PIN i odpowiedź na pytanie)."""
     read_language_from_settings()
     update_translations_in_other_windows()
-###################################################################
-# funkcja do zmieniania okien po nacisnieciu submit
-###################################################################
-    def switch_windows():
-        collect_data.destroy()
-        change_password(login_window, run_LoginPage,username)
 
-###################################################################
-# funkcja wpisujaca do textboxa "question" pytanie bezpieczenstwa
-# przypisane do wczesniej wybranego uzytkownika
-###################################################################
+    def switch_to_change_password():
+        hide_collect_data_page()
+        change_password(window, show_login_callback, username)
+
     def get_security_question():
         user = Baza.users_collection.find_one({"username": username})
         if user:
             return user.get("security_question", "")
         return ""
 
-###################################################################
-# fuunkcja odpowiedzialna za przycisk "submit"
-# sprawdzanie czy pin i odpowiedz sa poprawne
-# jesli tek nastepne okno, jesli nie komunikat i czyszczenie textboxow
-###################################################################
-    def on_click():
-        pin = pin_number.get()
-        user_answer = answer.get()
+    def on_submit():
+        user_pin = pin_entry.get()
+        user_answer = answer_entry.get()
 
-        # Pobieranie hashów z bazy danych
-        user_data = Baza.users_collection.find_one({"username": username}, {"pin_code": 1, "answer": 1})
+        correct_pin = Baza.users_collection.find_one({"username": username}, {"pin_code": 1}).get("pin_code", "")
+        correct_answer = Baza.users_collection.find_one({"username": username}, {"answer": 1}).get("answer", "")
 
-        if user_data:
-            correct_pin_hash = user_data.get("pin_code", "")
-            correct_answer_hash = user_data.get("answer", "")
-
-            # Sprawdzanie czy wprowadzone dane są poprawne za pomocą bcrypt
-            is_pin_correct = bcrypt.checkpw(pin.encode('utf-8'), correct_pin_hash.encode('utf-8'))
-            is_answer_correct = bcrypt.checkpw(user_answer.encode('utf-8'), correct_answer_hash.encode('utf-8'))
-
-            if is_pin_correct and is_answer_correct:
-                submit_button.configure(state="disabled")
-                collect_data.after(100, switch_windows)
-            else:
-                clear_textboxes()
-                error_label.configure(text=tlumaczenie["Invalid_data"], justify="center")
-                collect_data.focus_set()
+        if Szyfrowanie.hash_password(user_pin) == correct_pin and Szyfrowanie.hash_password(user_answer) == correct_answer:
+            submit_button.configure(state="disabled")
+            window.after(100, switch_to_change_password)
         else:
-            error_label.configure(text=tlumaczenie["User_not_found"], justify="center")
+            clear_textboxes()
+            error_label.configure(text=tlumaczenie["Invalid_data"], justify="center")
 
+    def clear_textboxes():
+        answer_entry.delete(0, ctk.END)
+        pin_entry.delete(0, ctk.END)
 
-###################################################################
-# funkcja sprawdzajaca czy textboxy nie sa puste
-# jesli pola sa puste guzik jest nieaktywny
-###################################################################
-    def check_data(event=None): 
-        if (answer.get() == "" or pin_number.get() == ""):
+    def check_data():
+        if answer_entry.get() == "" or pin_entry.get() == "":
             submit_button.configure(state="disabled")
         else:
-            submit_button.configure(state="normal")  
+            submit_button.configure(state="normal")
 
-###################################################################
-# funkcja do czyszczenia textboxow
-###################################################################
-    def clear_textboxes():
-        answer.delete(0, tk.END)
-        answer.configure(placeholder_text=tlumaczenie["Answer"])
-        pin_number.delete(0, tk.END)
-        pin_number.configure(placeholder_text=tlumaczenie["PIN"])
+    # Definiowanie widżetów
+    question_label = ctk.CTkLabel(window, width=180, height=30, text=get_security_question())
+    answer_entry = ctk.CTkEntry(window, width=150, height=30, placeholder_text=tlumaczenie["Answer"])
+    pin_entry = ctk.CTkEntry(window, width=150, height=30, placeholder_text=tlumaczenie["PIN"])
+    submit_button = ctk.CTkButton(window, state="disabled", width=50, height=30, text=tlumaczenie["Submit"], command=on_submit)
+    error_label = ctk.CTkLabel(window, width=450, height=30, text="", text_color="red", compound="center")
 
-###################################################################
-# definiowanie drugiego okna
-###################################################################
-    collect_data = ctk.CTk()
-    collect_data.geometry("450x200")
-    collect_data.title("LockBox-Forget Password")
-    collect_data.resizable(False, False)
-    collect_data.protocol("WM_DELETE_WINDOW", lambda: on_closing(collect_data, login_window))
-
-    question = ctk.CTkEntry(collect_data, 
-        width=180, 
-        height=30, 
-        placeholder_text=tlumaczenie["Question"])
-    
-    answer = ctk.CTkEntry(collect_data, 
-        width=150, 
-        height=30, 
-        placeholder_text=tlumaczenie["Answer"])
-    
-    pin_number = ctk.CTkEntry(collect_data, 
-        width=150, 
-        height=30, 
-        placeholder_text=tlumaczenie["PIN"])
-    
-    submit_button = ctk.CTkButton(collect_data, 
-        state="disabled", 
-        width=50, 
-        height=30, 
-        text=tlumaczenie["Submit"], 
-        command=on_click)
-    
-    error_label = ctk.CTkLabel(collect_data, 
-        width=450, 
-        height=30, 
-        text="",
-        text_color="red",
-        compound="center")
-
-    question.place(x=35, y=30)
-    answer.place(x=235, y=30)
-    pin_number.place(x=235, y=80)
+    # Umieszczanie widżetów na ekranie
+    question_label.place(x=35, y=30)
+    answer_entry.place(x=235, y=30)
+    pin_entry.place(x=235, y=80)
     submit_button.place(x=200, y=130)
     error_label.place(x=0, y=160)
 
-    security_question = get_security_question()
-    question.insert(0, security_question)
-    question.configure(state="disabled")
+    answer_entry.bind("<KeyRelease>", lambda event: check_data())
+    pin_entry.bind("<KeyRelease>", lambda event: check_data())
 
-    answer.bind("<KeyRelease>", lambda event: check_data())
-    pin_number.bind("<KeyRelease>", lambda event: check_data())
-    collect_data.mainloop()
-
-###################################################################
-# trzecie okno, wpisywanie nowego hasla
-###################################################################
-def change_password(login_window, run_LoginPage, username):
+    def hide_collect_data_page():
+        question_label.place_forget()
+        answer_entry.place_forget()
+        pin_entry.place_forget()
+        submit_button.place_forget()
+        error_label.place_forget()
+##########################################################
+# zmienianie hasla
+##########################################################
+def change_password(window, show_login_callback, username):
+    """Wyświetla ekran zmiany hasła."""
     read_language_from_settings()
     update_translations_in_other_windows()
-###################################################################
-# funkcja do ponownego otwarcia okna logowania po nacisnieciu submit
-###################################################################
-    def switch_windows():
-        change_password.destroy()
-        login_window.deiconify()
 
-###################################################################
-# funkcja sprawdzajaca poprawnosc hasla
-###################################################################
+    def on_password_change():
+        new_password = password_entry.get()
+        if check_password_validity(new_password):
+            if new_password == confirm_password_entry.get():
+                result = Baza.reset_user_password(username, new_password)
+                if result["success"]:
+                    show_login_callback()
+                    hide_change_password_page()
+                else:
+                    error_label.configure(text=result["message"], text_color="red")
+            else:
+                error_label.configure(text=tlumaczenie["Passwords_do_not_match"], text_color="red")
+
     def check_password_validity(password):
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$"
         if re.match(pattern, password):
@@ -268,140 +174,20 @@ def change_password(login_window, run_LoginPage, username):
             error_label.configure(text=tlumaczenie["Password_requirements"])
             return False
 
-###################################################################
-# funkcja odpowiedzialna za przycisk "submit"
-###################################################################
-    def on_click():
-        new_password = password.get()
-        if check_password_validity(new_password):
-            if check_password_match():
-                result = Baza.reset_user_password(username, new_password)
-                if result["success"]:
-                    show_confirmation_window()
-                    password.configure(state="disabled")
-                    confirm_password.configure(state="disabled")
-                else:
-                    error_label.configure(text=result["message"], text_color="red")
-        else:
-            error_label.configure(text=tlumaczenie["Invalid_password"], text_color="red")
+    # Definiowanie widżetów
+    password_entry = ctk.CTkEntry(window, width=150, height=30, placeholder_text=tlumaczenie["New_password"], show="*")
+    confirm_password_entry = ctk.CTkEntry(window, width=150, height=30, placeholder_text=tlumaczenie["Confirm_password"], show="*")
+    submit_button = ctk.CTkButton(window, state="disabled", width=50, height=30, text=tlumaczenie["Submit"], command=on_password_change)
+    error_label = ctk.CTkLabel(window, width=450, height=30, text="", text_color="red", compound="center")
 
-    def check_password_match():
-        if password.get() == confirm_password.get():
-            return True
-        else:
-            error_label.configure(text=tlumaczenie["Passwords_do_not_match"], text_color="red")
-            return False
-
-###################################################################
-# checkbox wyswietlajacy haslo
-###################################################################
-    def show_password():
-        if password.cget("show") == "*" or confirm_password.cget("show") == "*":
-            password.configure(show="")
-            confirm_password.configure(show="")
-        else:
-            password.configure(show="*")
-            confirm_password.configure(show="*")
-
-###################################################################
-# funkcja sprawdzajaca czy pola nie sa puste
-###################################################################
-    def check_password():
-        if password.get() == "" or confirm_password.get() == "":
-            submit_button.configure(state="disabled")
-        else:
-            submit_button.configure(state="normal")
-
-###################################################################
-# dodatkowe okno z potwierdzeniem zmian hasla
-###################################################################
-    def show_confirmation_window():
-        confirmation_window = ctk.CTkToplevel(change_password)
-        confirmation_window.geometry("300x100")
-        confirmation_window.title("Confirmation")
-        read_language_from_settings()
-        update_translations_in_other_windows()
-
-        confirmation_label = ctk.CTkLabel(confirmation_window, 
-            text=tlumaczenie["Changed"], 
-            width=250, 
-            height=30)
-        
-        confirmation_button = ctk.CTkButton(confirmation_window, 
-            text="OK", 
-            command=lambda: confirmation_window.after(100, on_ok_click, confirmation_window))
-
-        confirmation_label.pack(pady=10)
-        confirmation_button.pack(pady=10)
-
-        change_password.attributes("-disabled", True)
-        confirmation_window.protocol("WM_DELETE_WINDOW", lambda: on_ok_click(confirmation_window))
-
-###################################################################
-# funkcja odpowiedzialna za przycisk "OK" w oknie potwierdzajac
-# zamykanie okna zmiany hasla, okna potwierdzajacego i otwieranie okna logowania
-###################################################################
-    def on_ok_click(confirmation_window):
-        confirmation_window.destroy()
-        change_password.destroy()
-        login_window.deiconify()
-
-###################################################################
-# definiowanie trzeciego okna
-###################################################################
-    change_password = ctk.CTk()
-    change_password.geometry("450x200")
-    change_password.title("LockBox-Forget Password")
-    change_password.resizable(False, False)
-    change_password.protocol("WM_DELETE_WINDOW", lambda: on_closing(change_password, login_window))
-
-    password = ctk.CTkEntry(change_password, 
-        width=150, 
-        height=30, 
-        show="*", 
-        placeholder_text=tlumaczenie["New_password"])
-    
-    confirm_password = ctk.CTkEntry(change_password, 
-        width=150, 
-        height=30, 
-        show="*", 
-        placeholder_text=tlumaczenie["Confirm_password"])
-    
-    submit_button = ctk.CTkButton(change_password, 
-        state="disabled", 
-        width=50, 
-        height=30, 
-        text=tlumaczenie["Submit"], 
-        command=on_click)
-    
-    show_password = ctk.CTkCheckBox(change_password, 
-        width=50, 
-        height=30, 
-        text=tlumaczenie["Show_password"], 
-        command=show_password)
-    
-    error_label = ctk.CTkLabel(change_password, 
-        width=450, 
-        height=30, 
-        text="", 
-        compound="center", 
-        fg_color="transparent", 
-        text_color="red")
-
-    password.place(x=65, y=40)
-    confirm_password.place(x=235, y=40)
-    show_password.place(x=65, y=90)
+    # Umieszczanie widżetów na ekranie
+    password_entry.place(x=65, y=40)
+    confirm_password_entry.place(x=235, y=40)
     submit_button.place(x=285, y=90)
     error_label.place(x=0, y=160)
 
-    password.bind("<KeyRelease>", lambda event: check_password())
-    confirm_password.bind("<KeyRelease>", lambda event: check_password())
-
-    change_password.mainloop()
-
-###################################################################
-# funkcja powodujaca otwarcie okna logowania w przypadku zamkniecia ktoregokolwiek z okien
-###################################################################
-def on_closing(window, login_window):
-    window.destroy()
-    login_window.deiconify()
+    def hide_change_password_page():
+        password_entry.place_forget()
+        confirm_password_entry.place_forget()
+        submit_button.place_forget()
+        error_label.place_forget()
