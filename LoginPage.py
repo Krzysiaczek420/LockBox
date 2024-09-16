@@ -60,6 +60,37 @@ def change_language(event):
         json.dump(ustawienia, plik)
     language.set(language_mapping_inv[jezyk])
 
+def close_window():
+    dialog_frame = ctk.CTkFrame(window, width=200, height=100)
+    dialog_frame.place(relx=0.5, rely=0.5, anchor='center')
+    dialog_frame.grab_set()
+
+    close_label = ctk.CTkLabel(dialog_frame, width=200, text=tlumaczenie["close"],anchor="center")
+    close_label.place(x=0, y=15)
+
+    # Funkcja do zamknięcia aplikacji
+    def confirm_close():
+        if window is not None and window.winfo_exists():
+            baza.close_database_connection()  # zamknięcie połączenia z bazą danych
+            #overlay.destroy()  # Usunięcie półprzezroczystego `Frame`
+            window.destroy()  # zamknięcie głównego okna
+
+    # Funkcja do anulowania zamknięcia
+    def cancel_close():
+        dialog_frame.destroy()
+        window.grab_set()
+        window.protocol("WM_DELETE_WINDOW", close_window)  # Usunięcie półprzezroczystego `Frame`
+
+    # Przyciski "Tak" i "Nie"
+    yes_button = ctk.CTkButton(dialog_frame, width=50, height=30, text=tlumaczenie["yes"], command=confirm_close)
+    no_button = ctk.CTkButton(dialog_frame, width=50, height=30, text=tlumaczenie["no"], command=cancel_close)
+
+    yes_button.place(x=25, y=60)
+    no_button.place(x=125, y=60)
+
+    # Zapewnij, że przy zamknięciu głównego okna, półprzezroczysty `Frame` zostanie usunięty
+    window.protocol("WM_DELETE_WINDOW", cancel_close)
+
 def update_translations():
     loginLabel.configure(text=tlumaczenie["login_label"])
     login_input.configure(placeholder_text=tlumaczenie["username_placeholder"])
@@ -79,22 +110,14 @@ def update_translations():
         error_Label.configure(text="")
 
 def forget_password_pressed():
-    window.withdraw()
-    forgetPW.select_username(window, run_LoginPage)
+    hide_login_page()
+    show_forget_page()
 
 def check_if_empty(event=None):
     if (login_input.get() == "" or password_input.get() == ""):
         login_button.configure(state="disabled")
     else:
         login_button.configure(state="normal")
-
-def on_closing():
-    if window:
-        try:
-            baza.close_database_connection()
-            window.after(100, window.destroy)
-        except tk.TclError:
-            pass
 
 def check_user_in_database(username):
     user = baza.users_collection.find_one({"username": username})
@@ -103,42 +126,39 @@ def check_user_in_database(username):
 def login():
     global current_error
     username_in = login_input.get()
-    password_in = password_input.get()  # Pobieranie niezahaszowanego hasła
+    password_in = password_input.get()
     username_db = baza.users_collection.find_one({"username": username_in})
 
     if check_user_in_database(username_in):
         stored_password = username_db.get("password", "")
-        # Porównywanie hasła z bazy danych za pomocą bcrypt
         if bcrypt.checkpw(password_in.encode('utf-8'), stored_password.encode('utf-8')):
             hide_login_page()
             password_input.delete(0, tk.END)
             password_input.configure(placeholder_text=tlumaczenie["password_placeholder"])
             error_Label.configure(text="")
-            show_main_page(username_in)
-            #main.MainWindow(window, username_in)  # Use existing window
+            show_main_page(username_in,show_login_page)
         else:
             current_error = 1
-            error_Label.configure(text="Niepoprawne hasło.")
+            error_Label.configure(text=tlumaczenie["incorrect_password"])
     else:
         current_error = 2
-        error_Label.configure(text="Użytkownik nie istnieje.")
-
+        error_Label.configure(text=tlumaczenie["no_user"])
 
 def run_LoginPage():
     baza.connect_to_database()
-    window.protocol("WM_DELETE_WINDOW", on_closing)
+    window.protocol("WM_DELETE_WINDOW", close_window)
     window.bind("<Button-1>", cancel_focus)
     window.mainloop()
 
 # Funkcja do wyświetlania strony logowania
 def show_login_page():
-    loginLabel.place(x=265, y=165)
-    login_input.place(x=265, y=200)
-    password_input.place(x=265, y=250)
-    show_password_cb.place(x=265, y=300)
+    loginLabel.place(x=275, y=165)
+    login_input.place(x=275, y=200)
+    password_input.place(x=275, y=250)
+    show_password_cb.place(x=275, y=300)
     error_Label.place(x=0, y=400)
-    login_button.place(x=365, y=350)
-    forgetPassword.place(x=245, y=350)
+    login_button.place(x=375, y=350)
+    forgetPassword.place(x=255, y=350)
     newAccountLabel.place(x=15, y=465)
     newUserButton.place(x=220, y=460)
     language.place(x=590, y=460)
@@ -161,8 +181,10 @@ def hide_login_page():
 def show_register_page():
     RegisterPage.show_register_page(window, show_login_page)
 
-def show_main_page(username_in):
+def show_main_page(username_in,show_login_page):
     main.MainWindow(window, show_login_page, username_in)
+def show_forget_page():
+    forgetPW.select_username(window, show_login_page)
 
 # Definiowanie widgetów okna logowania
 login_input = ctk.CTkEntry(window, 
@@ -188,7 +210,7 @@ login_button = ctk.CTkButton(window,
     text=tlumaczenie["log_in_button"], 
     width=60, 
     height=30,
-    command=login,
+    command=login, #ZMIENIONE NA POTRZEBY TESTOW
     state="disabled")
 
 newUserButton = ctk.CTkButton(window, 
