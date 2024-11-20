@@ -3,7 +3,7 @@ import customtkinter as ctk
 import tkinter as tk
 import random
 import string
-from Settings import wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
+from Settings import load_setting, load_translation
 ################################################################
 # Okno pinu po rejestracji
 ################################################################
@@ -27,9 +27,9 @@ def pin_window(main_window,pin_value, show_login_callback):
 ################################################################
 # wczytanie ustawień i tłumaczeń
 ################################################################
-    ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
+    ustawienia = load_setting(sciezka_do_pliku)
     jezyk = ustawienia.get('language', 'en')
-    tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'PinWindow')
+    tlumaczenie = load_translation(jezyk, 'PinWindow')
 
     def go_back_to_login():
         for widget in main_window.winfo_children():
@@ -45,7 +45,7 @@ def pin_window(main_window,pin_value, show_login_callback):
     def update_translations_in_other_windows():
         global tlumaczenie
         jezyk = read_language_from_settings()
-        tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'PinWindow')
+        tlumaczenie = load_translation(jezyk, 'PinWindow')
 
 ################################################################
 # dzialania po zamknieciu okna
