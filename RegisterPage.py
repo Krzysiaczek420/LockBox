@@ -1,23 +1,23 @@
 import re
-import Baza as Baza
+import Database as Database
 import customtkinter as ctk
-import PinWindow as pin
+import Pin_Window as pin
 import tkinter as tk
-from Settings import ustaw_motyw_i_kolor, wczytaj_ustawienia, wczytaj_tlumaczenie_modulu
+from Settings import set_theme_and_color, load_setting, load_translation
 
-sciezka_do_pliku = 'settings.json'
+settings_file_path = 'settings.json'
 
-motyw, kolor = ustaw_motyw_i_kolor(sciezka_do_pliku)
-ctk.set_appearance_mode(motyw)
-ctk.set_default_color_theme(kolor)
+theme, color = set_theme_and_color(settings_file_path)
+ctk.set_appearance_mode(theme)
+ctk.set_default_color_theme(color)
 current_error = None
 
 def show_register_page(window, show_login_callback):
-    window.title("LockBox-Register")
+    window.title("LockBox - Register")
 
-    ustawienia = wczytaj_ustawienia(sciezka_do_pliku)
-    jezyk = ustawienia.get('language', 'en')
-    tlumaczenie = wczytaj_tlumaczenie_modulu(jezyk, 'RegisterPage')
+    settings = load_setting(settings_file_path)
+    language = settings.get('language', 'en')
+    translation = load_translation(language, 'RegisterPage')
     
     def go_back_to_login():
         for widget in window.winfo_children():
@@ -43,7 +43,7 @@ def show_register_page(window, show_login_callback):
         else:
             clear_textboxes()
             window.focus_set()
-            error_label.configure(text=tlumaczenie["Passwords_are_not_the_same"])
+            error_label.configure(text=translation["Passwords_are_not_the_same"])
 
 ################################################################
 # funkcja sprawdzjaca czy textboxy nie sa puste
@@ -52,7 +52,7 @@ def show_register_page(window, show_login_callback):
     def check_if_empty(event=None):
         if (username_input.get() == "" or password_input.get() == "" or
             confirm_password_input.get() == "" or answer_input.get() == "" or
-            security_question_combobox.get() in (tlumaczenie["Select_question"], "")):
+            security_question_combobox.get() in (translation["Select_question"], "")):
             register_button.configure(state="disabled")
         else:
             register_button.configure(state="normal")
@@ -62,16 +62,20 @@ def show_register_page(window, show_login_callback):
 ################################################################
     def check_username_length():
         username = username_input.get()
+        if username.endswith(' '):
+            username = username.rstrip()
+            username_input.delete(0, "end")
+            username_input.insert(0, username)  
         if ' ' in username:
             clear_textboxes()
-            error_label.configure(text=tlumaczenie["No_spaces"])
+            error_label.configure(text=translation["No_spaces"])
             return False
         elif len(username) >= 5:
             error_label.configure(text="")
             return True
         else:
             clear_textboxes()
-            error_label.configure(text=tlumaczenie["Username_length"])
+            error_label.configure(text=translation["Username_length"])
             return False
 
 ################################################################
@@ -80,15 +84,20 @@ def show_register_page(window, show_login_callback):
 ################################################################
     def check_password_validity():
         password = password_input.get()
+
+        if password.endswith(' '):
+            password = password.rstrip()
+            password_input.delete(0, "end")
+            password_input.insert(0, password)
+
         pattern = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$.!%*?&])[A-Za-z\d@$.!%*?&]{12,}$"
         if re.match(pattern, password):
             error_label.configure(text="")
             return True
         else:
             clear_textboxes()
-            error_label.configure(text=tlumaczenie["Password_requirements"], justify="center", compound="center")
+            error_label.configure(text=translation["Password_requirements"], justify="center", compound="center")
             return False
-
 ################################################################
 # obsluga checkboxu do wyswietlania hasla
 ################################################################
@@ -106,7 +115,7 @@ def show_register_page(window, show_login_callback):
 # w innym wypadku wpisywanie jest zablokowane
 ################################################################
     def on_other_selected(choice):
-        if security_question_combobox.get() == tlumaczenie["Other"]:
+        if security_question_combobox.get() == translation["Other"]:
             security_question_combobox.configure(state="normal")
             security_question_combobox.set("")
         else:
@@ -118,14 +127,14 @@ def show_register_page(window, show_login_callback):
 ################################################################
     def clear_textboxes():
         username_input.delete(0, tk.END)
-        username_input.configure(placeholder_text=tlumaczenie["Username"])
+        username_input.configure(placeholder_text=translation["Username"])
         password_input.delete(0, tk.END)
-        password_input.configure(placeholder_text=tlumaczenie["Password"])
+        password_input.configure(placeholder_text=translation["Password"])
         confirm_password_input.delete(0, tk.END)
-        confirm_password_input.configure(placeholder_text=tlumaczenie["Confirm_password"])
-        security_question_combobox.set(tlumaczenie["Select_question"])
+        confirm_password_input.configure(placeholder_text=translation["Confirm_password"])
+        security_question_combobox.set(translation["Select_question"])
         answer_input.delete(0, tk.END)
-        answer_input.configure(placeholder_text=tlumaczenie["Answer"])
+        answer_input.configure(placeholder_text=translation["Answer"])
         error_label.configure(text="")
         register_button.configure(state="disabled")
         window.focus_set()
@@ -138,7 +147,7 @@ def show_register_page(window, show_login_callback):
             check_passwords()
             if same_passwords:
                 pin_value = pin.generate_random_pin()
-                result = Baza.add_user(
+                result = Database.add_user(
                     username=username_input.get(),
                     password=password_input.get(),
                     security_question=security_question_combobox.get(),
@@ -156,38 +165,41 @@ def show_register_page(window, show_login_callback):
     username_input = ctk.CTkEntry(window, 
         width=150, 
         height=30, 
-        placeholder_text=tlumaczenie["Username"], )
+        placeholder_text=translation["Username"], )
     
     show_password_var = tk.IntVar()
-    show_password_register = ctk.CTkCheckBox(window, 
-        text=tlumaczenie["Show_password"], 
+    show_password = ctk.CTkCheckBox(window, 
+        text=translation["Show_password"], 
         width=150, 
         height=30,
+        checkbox_width=20,
+        checkbox_height=20,
+        border_width=2,
         variable=show_password_var, 
         command=show_password_button)
     
     password_input = ctk.CTkEntry(window, 
         width=150, 
         height=30, 
-        placeholder_text=tlumaczenie["Password"], 
+        placeholder_text=translation["Password"], 
         show="*")
     
     confirm_password_input = ctk.CTkEntry(window, 
         width=150, 
         height=30, 
-        placeholder_text=tlumaczenie["Confirm_password"], 
+        placeholder_text=translation["Confirm_password"], 
         show="*")
 
 ################################################################
 # wartosci comboboxa (pytania bezpieczenstwa)
 ################################################################
     security_question_values = [
-        tlumaczenie["Security_question1"],
-        tlumaczenie["Security_question2"],
-        tlumaczenie["Security_question3"],
-        tlumaczenie["Security_question4"],
-        tlumaczenie["Security_question5"],
-        tlumaczenie["Other"]]
+        translation["Security_question1"],
+        translation["Security_question2"],
+        translation["Security_question3"],
+        translation["Security_question4"],
+        translation["Security_question5"],
+        translation["Other"]]
 
     security_question_combobox = ctk.CTkComboBox(window, 
         state="readonly", 
@@ -196,18 +208,18 @@ def show_register_page(window, show_login_callback):
         values=security_question_values, 
         command=on_other_selected)
     
-    security_question_combobox.set(tlumaczenie["Select_question"])
+    security_question_combobox.set(translation["Select_question"])
     security_question_combobox.bind("<<ComboboxSelected>>", on_other_selected)
 
     answer_input = ctk.CTkEntry(window, 
         width=150, 
         height=30, 
-        placeholder_text=tlumaczenie["Answer"])
+        placeholder_text=translation["Answer"])
     
     register_button = ctk.CTkButton(
         window, 
         state="disabled", 
-        text=tlumaczenie["Register"], 
+        text=translation["Register"], 
         command=register_action)
     
     error_label = ctk.CTkLabel(
@@ -218,29 +230,24 @@ def show_register_page(window, show_login_callback):
         height=50, 
         fg_color="transparent", 
         text_color="red")
+    
     back_button = ctk.CTkButton(
         window, 
-        text = tlumaczenie["Back"],
+        text = translation["Back"],
         width=70,
         command = go_back_to_login)
                                 
-
     username_input.bind("<KeyRelease>", check_if_empty)
     password_input.bind("<KeyRelease>", check_if_empty)
     confirm_password_input.bind("<KeyRelease>", check_if_empty)
     answer_input.bind("<KeyRelease>", check_if_empty)
-
-    register_label = ctk.CTkLabel(window, 
-        text="Registration", 
-        width=140, 
-        height=20)
 
     username_input.place(x=275, y=150)
     password_input.place(x=275, y=200)
     confirm_password_input.place(x=275, y=250)
     security_question_combobox.place(x=195, y=300)
     answer_input.place(x=365, y=300)
-    show_password_register.place(x=275, y=350)
+    show_password.place(x=275, y=350)
     register_button.place(x=275, y=400)
     error_label.place(x=0, y=430)
-    back_button.place(x=25,y=25)
+    back_button.place(x=15,y=15)
