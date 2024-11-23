@@ -107,11 +107,12 @@ def close_window():
     if window.state() == 'iconic': 
         window.deiconify()
 
-    dialog_frame = ctk.CTkFrame(window, border_width=2, width=200, height=100)
+    dialog_frame = ctk.CTkFrame(window, border_width=2, width=200, height=100,)
     dialog_frame.place(relx=0.5, rely=0.5, anchor='center')
     dialog_frame.grab_set()
     dialog_active = True
     disable_close_button()
+    dialog_frame.custom_name = "dialog_frame"
 
     def confirm_close():
         global dialog_active
